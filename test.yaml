@@ -1,0 +1,526 @@
+name: "Unforgettable Journeys"
+version: "1.0"
+author: "rocamocha"
+description: "A songpack including selections from journeys in fantasy worlds, songs to set the mood, and more."
+credits: "I do not own any music included in this soundpack. All rights to their respective owners."
+
+
+musicSwitchSpeed: "NORMAL"
+musicDelayLength: "NORMAL"
+
+entries:
+
+  - events: ["MAIN_MENU"]
+    forceStopMusicOnChanged: true
+    forceStartMusicOnValid: true
+    songs:
+      - "final_fantasy/crystal_chronicles/Kazenone (Sound of the Wind)"
+      - "final_fantasy/crystal_chronicles/Endless Sky"
+      - "final_fantasy/Fabula Nova Crystallis (From Final Fantasy XIII)"
+      - "final_fantasy/Roses of May (From Final Fantasy IX)"
+      - "final_fantasy/Zephyr Memories –Legend of the Eternal Wind- (From Final Fantasy III)"
+      - "octopath_traveler_ii/Invitation to Darkness"
+      - "dragon_quest/viii_tokyo_suite/Remembrances"
+      - "fez/Love"
+      - "celeste/[Official] Celeste Original Soundtrack - 04 - Awake"
+      - "earthbound/Good Friends, Bad Friends"
+      - "earthbound/What a Great Picture!"
+      - "lozww/Title - The Legend of Zelda： The Windwaker OST"
+      - "lwa/Little Witch Academia OST - Chariot's Theme"
+      - "lwa/Little Witch Academia OST - Dead Heat"
+      - "lwa/Little Witch Academia OST - Hope"
+      - "lwa/Little Witch Academia OST - Lotte"
+      - "lwa/Little Witch Academia OST - My Story"
+      - "lwa/Little Witch Academia OST - Opening Declaration"
+      - "illusion_of_gaia/Illusion of Gaia OST #5 -  Lola's Melody"
+      - "chrono_trigger/Epilogue - Chrono Trigger OST"
+      - "chrono_cross/RADICAL DREAMERS ～盗めない宝石～"
+
+  - events: ["HOME", "DAY"]
+    forceStopMusicOnChanged: true
+    forceStartMusicOnValid: true
+    forceChance: 0.33f
+    songs:
+      - "final_fantasy/crystal_chronicles/A Gentle Wind Blows"
+      - "final_fantasy/FFXIV OST Gridania Day Time Theme ( Wailers and Waterwheels )"
+      - "octopath_traveler_ii/Flamechurch, Sacred Light Day"
+      - "octopath_traveler_ii/Home of Wisdom and the Arts Day"
+      - "fez/Home"
+      - "tangledeep/What's in That Barrel？"
+      - "earthbound/Sunrise and Onett Theme"
+      - "earthbound/Threed, Free at Last"
+      - "megaman/MegaMan Legends 2 03 - The Flutter Theme"
+      - "megaman/MegaMan Legends 22 City Hall"
+      - "lozww/Windfall Island - The Legend of Zelda： The Wind Waker OST"
+      - "lwa/Little Witch Academia OST - Blytonbury"
+      - "lwa/Little Witch Academia OST - Hope"
+      - "illusion_of_gaia/Illusion of Gaia OST #10 - Itory, The Hidden Village"
+      - "chrono_trigger/Peaceful Days"
+      - "chrono_trigger/Robo Gang Johnny"
+      - "chrono_cross/アルニ村 ホーム"
+      - "chrono_cross/ガルドーブ ホーム"
+      - "chrono_cross/マブーレ アナザー"
+      - "chrono_cross/楽天"
+      - "elona/Elona OST - Casino ⧸ Party Time - 27"
+      - "村治 佳織  Kaori Muraji - Alone Again (Naturally) (Track 07) Soleil - Portraits 2 ALBUM"
+
+  - events: ["HOME", "NIGHT"]
+    forceStopMusicOnChanged: true
+    forceStartMusicOnValid: true
+    forceChance: 0.33f
+    songs:
+      - "octopath_traveler_ii/Flamechurch, Sacred Light Night"
+      - "octopath_traveler_ii/Home of Wisdom and the Arts Night"
+      - "genshin_impact/Dawn Winery Theme"
+      - "genshin_impact/Sleepless Night"
+      - "earthbound/Home Sweet Home"
+      - "earthbound/Threed, Free at Last"
+      - "lwa/Little Witch Academia OST - Diana"
+      - "lwa/Little Witch Academia OST - Good Night"
+      - "lwa/Little Witch Academia OST - Memories"
+      - "illusion_of_gaia/Illusion of Gaia OST #10 - Itory, The Hidden Village"
+      - "chrono_cross/アルニ村 アナザー"
+      - "chrono_cross/うたかたの想い"
+      - "chrono_cross/ガルドーブ アナザー"
+      - "chrono_cross/マブーレ ホーム"
+      - "chrono_cross/去りにし者ども"
+      - "chrono_cross/次元の狭間"
+      - "村治 佳織  Kaori Muraji - Rodgers： The Sound of Music (Track 06) Soleil - Portraits 2 ALBUM"
+
+  - events: ["BOAT", "DAY"]
+    forceStopMusicOnChanged: true
+    forceStartMusicOnValid: true
+    songs:
+      - "final_fantasy/crystal_chronicles/Magi is Everything"
+      - "octopath_traveler_ii/The Sundering Sea Day"
+      - "earthbound/Sailing to Scaraba"
+      - "earthbound/The Metropolis of Fourside"
+      - "megaman/MegaMan Legends 2 33 - Calbania- Island Theme"
+      - "lozww/The Legend Of Zelda WindWaker OST- Dawn and Ocean"
+      - "illusion_of_gaia/Illusion of Gaia OST #1 - The Age of Exploration"
+      - "illusion_of_gaia/Illusion of Gaia⧸Time - Royal Anthem (HQ)"
+      - "chrono_trigger/Frog's Theme"
+      - "elona/Elona OST - Overworld 3 ⧸ Field3 - 34"
+
+  - events: ["BOAT", "NIGHT"]
+    forceStopMusicOnChanged: true
+    forceStartMusicOnValid: true
+    songs:
+      - "final_fantasy/crystal_chronicles/Magi is Everything"
+      - "octopath_traveler_ii/The Sundering Sea Night"
+      - "earthbound/The Submarine"
+      - "lwa/Little Witch Academia OST - Discussion"
+      - "illusion_of_gaia/Illusion of Gaia： Will's Dream"
+      - "chrono_trigger/To Far Away Times - Chrono Trigger"
+      - "chrono_trigger/Wind Scene"
+      - "lozww/The Legend Of Zelda WindWaker OST- Dawn and Ocean"
+
+  - events: ["UNDERWATER || BIOME=ocean"]
+    forceChance: 0.66f
+    songs:
+      - "final_fantasy/crystal_chronicles/Light and Shadow"
+      - "final_fantasy/FFXIV OST Sea of Clouds Night Theme ( Close to the Heavens )"
+      - "final_fantasy/Roses of May (From Final Fantasy IX)"
+      - "final_fantasy/Final Fantasy - Chaos Shrine Theme"
+      - "dragon_quest/viii_tokyo_suite/Memories of an Ancient Ocean"
+      - "dragon_quest/viii_tokyo_suite/Mysterious Tower"
+      - "dragon_quest/viii_tokyo_suite/Poet's World"
+      - "octopath_traveler_ii/Gloomy Grotto"
+      - "genshin_impact/Slight Distress"
+      - "fez/Puzzle"
+      - "tangledeep/Child of the Forest"
+      - "tangledeep/Mysteries of Time"
+      - "earthbound/Summers, Eternal Tourist Trap"
+      - "earthbound/The Submarine"
+      - "donkey_kong_country/Donkey Kong Country 3 - Cascade Capers [Restored]"
+      - "donkey_kong_country/Donkey Kong Country 3 - Water World [Restored]"
+      - "donkey_kong_country/Donkey Kong Country - Aquatic Ambience [Restored] NEW 2020 MIX"
+      - "spyro/Spyro 2 - Ripto's Rage! OST： Aquaria Towers"
+      - "spyro/Spyro the Dragon Soundtrack - Twilight Harbor"
+      - "chrono_trigger/Dome 16's Ruin"
+      - "chrono_trigger/People who threw away the will to live"
+      - "chrono_trigger/Undersea Palace"
+      - "chrono_cross/クロノポリス"
+      - "chrono_cross/世界のへそ"
+      - "chrono_cross/凍てついた炎"
+      - "chrono_cross/古龍の砦"
+      - "chrono_cross/土龍の島"
+      - "chrono_cross/影切りの森"
+      - "chrono_cross/星を盗んだ少女"
+      - "chrono_cross/時の迷い子"
+      - "chrono_cross/死炎山"
+
+  - events: ["DEEP_UNDERGROUND"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Goblin's Lair"
+      - "final_fantasy/crystal_chronicles/Magi is Everything"
+      - "final_fantasy/crystal_chronicles/Aiming Towards the New World"
+      - "final_fantasy/crystal_chronicles/Light and Shadow"
+      - "final_fantasy/Final Fantasy XII OST - cd3 - 09 - Eruyt Village"
+      - "octopath_traveler_ii/Ruins Immemorial"
+      - "octopath_traveler_ii/Stillness Underground"
+      - "fez/Puzzle"
+      - "celeste/[Official] Celeste Original Soundtrack - 08 - Scattered and Lost"
+      - "genshin_impact/Slight Distress"
+      - "tangledeep/Earthen Labyrinth"
+      - "tangledeep/Mysteries of Time"
+      - "earthbound/Happy Happy is Blue"
+      - "earthbound/Welcome Home"
+      - "lozww/Forbidden Woods - The Legend of Zelda： The Wind Waker OST"
+      - "lwa/Little Witch Academia OST - A Sleeping Dream"
+      - "lwa/Little Witch Academia OST - Incantation"
+      - "Little Witch Academia OST - The Future"
+      - "illusion_of_gaia/Illusion of Gaia： Will's Dream"
+      - "illusion_of_gaia/Illusion of Gaia⧸Time - Awakening The Wind (HQ)"
+      - "illusion_of_gaia/Illusion of Gaia⧸Time - Descent Into Darkness (HQ)"
+      - "chrono_trigger/Schala's Theme - Chrono Trigger"
+      - "chrono_trigger/Sealed Door"
+      - "chrono_trigger/The Trial"
+      - "chrono_trigger/Underground Sewer"
+      - "chrono_cross/クロノポリス"
+      - "chrono_cross/ヒドラの沼"
+      - "chrono_cross/亡者の島"
+      - "chrono_cross/土龍の島"
+      - "chrono_cross/失われた欠片"
+      - "chrono_cross/時の迷い子"
+      - "elona/Elona OST - Dungeon3 - 7"
+
+  - events: ["UNDERGROUND"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Aiming Towards the New World"
+      - "final_fantasy/crystal_chronicles/Magi is Everything"
+      - "final_fantasy/Final Fantasy XII OST - cd3 - 09 - Eruyt Village"
+      - "dragon_quest/viii_tokyo_suite/Cold and Gloomy ~ In the Dungeon's Depths"
+      - "octopath_traveler_ii/Gloomy Grotto"
+      - "octopath_traveler_ii/Stillness Underground"
+      - "genshin_impact/Slight Distress"
+      - "earthbound/Get on the Bus"
+      - "earthbound/Pink Cloud Shrine"
+      - "earthbound/Save the Miners!"
+      - "lwa/Little Witch Academia OST - Magic (Nervous)"
+      - "lwa/Little Witch Academia OST - My Pace"
+      - "lwa/Little Witch Academia OST - The Magic Item Cafe"
+      - "lwa/Little Witch Academia OST - Unrest"
+      - "lwa/Little Witch Academia OST - Ursula"
+      - "chrono_trigger/Primitive Mountain"
+      - "chrono_trigger/Schala's Theme - Chrono Trigger"
+      - "chrono_cross/世界のへそ"
+      - "chrono_cross/亡者の島"
+      - "chrono_cross/失われた欠片"
+      - "chrono_cross/幽霊船"
+      - "chrono_cross/時の迷い子"
+      - "elona/Elona OST - Dungeon3 - 7"
+      - "elona/Elona OST - The Mine ⧸ Dwarf - 11"
+
+  - events: ["HIGH_UP"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Endless Sky"
+      - "final_fantasy/Final Fantasy II Pixel Remastered ｜ Main Theme ｜ Soundtrack HQ"
+      - "final_fantasy/Roses of May (From Final Fantasy IX)"
+      - "final_fantasy/The Dalmasca Estersand (From Final Fantasy XII)"
+      - "final_fantasy/Zephyr Memories –Legend of the Eternal Wind- (From Final Fantasy III)"
+      - "final_fantasy/Final Fantasy III OST - Priestess Aria [SNES Edition EX+]"
+      - "dragon_quest/viii_tokyo_suite/Heavenly Flight (III)"
+      - "dragon_quest/viii_tokyo_suite/Remembrances"
+      - "dragon_quest/viii_tokyo_suite/Sky, Ocean and Earth"
+      - "tangledeep/Eternal Verdant Waltz"
+      - "earthbound/Boy Meets Girl"
+      - "earthbound/The Metropolis of Fourside"
+      - "lwa/Little Witch Academia OST - Discussion"
+      - "lwa/Little Witch Academia OST - My Story"
+      - "lwa/Little Witch Academia OST - Ursula"
+      - "illusion_of_gaia/Illusion of Gaia OST #1 - The Age of Exploration"
+      - "chrono_trigger/Wind Scene"
+      - "chrono_trigger/Wings that Cross Time - Epoch's Theme"
+      - "chrono_cross/クロノマンティーク"
+      - "chrono_cross/龍の騎士"
+      - "elona/Elona music： xp_field4"
+      - "elona/Elona OST - Overworld 2 ⧸ Field2 - 33"
+      - "elona/Elona OST - Palmia ⧸ Town4 - 4"
+      - "村治 佳織  Kaori Muraji-24 Préludes,Op.28-Arr.forguitar,F.Tarrega：No15 InD flatMajor-＂Raindrop＂(Track14)"
+
+  - events: ["DAY", "VILLAGE"]
+    songs:
+      - "final_fantasy/crystal_chronicles/I'm Moogle"
+      - "octopath_traveler_ii/Village of Beastlings Day"
+      - "genshin_impact/Village Surrounded by Green"
+      - "earthbound/Buy Something Will Ya!"
+      - "earthbound/Hi Hi Hi"
+      - "lwa/Little Witch Academia OST - Everyday At Luna Nova"
+      - "lwa/Little Witch Academia OST - Sucy"
+      - "chrono_trigger/Guardia Millenial Fair"
+      - "chrono_cross/ゼルベス"
+      - "elona/Elona OST - Yowyn ⧸ Farming Quest - 25"
+
+  - events: ["NIGHT", "VILLAGE"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Magi is Everything"
+      - "octopath_traveler_ii/Village of Beastlings Night"
+      - "genshin_impact/Village Surrounded by Green"
+      - "earthbound/Enjoy Your Stay"
+      - "lwa/Little Witch Academia OST - Lotte"
+      - "lwa/Little Witch Academia OST - My Pace"
+      - "chrono_cross/回想 ～消せない想い～"
+      - "chrono_cross/楽天"
+
+  - events: ["DIM=NETHER"]
+    forceStopMusicOnChanged: true
+    songs:
+      - "final_fantasy/crystal_chronicles/Aiming Towards the New World"
+      - "final_fantasy/Final Fantasy III SNES Music   Figaro Castle"
+      - "octopath_traveler_ii/Den of Darkness"
+      - "octopath_traveler_ii/Stillness Underground"
+      - "celeste/[Official] Celeste Original Soundtrack - 08 - Scattered and Lost"
+      - "tangledeep/Earthen Labyrinth"
+      - "tangledeep/Mysteries of Time"
+      - "genshin_impact/Slight Distress"
+      - "earthbound/Pyramid"
+      - "earthbound/Sanctuary Guardians"
+      - "earthbound/The Lost Underworld"
+      - "earthbound/The Tendas Cave"
+      - "megaman/MegaMan Legends 2 35 - Calbania- Shu's House"
+      - "lozww/Forbidden Woods - The Legend of Zelda： The Wind Waker OST"
+      - "lwa/Little Witch Academia OST - Incantation"
+      - "lwa/Little Witch Academia OST - Incubation"
+      - "lwa/Little Witch Academia OST - Tension"
+      - "lwa/Little Witch Academia OST - The Magic Item Cafe"
+      - "illusion_of_gaia/25 Angkor Wat"
+      - "illusion_of_gaia/Illusion of Gaia OST #11 - Signs of The Past"
+      - "illusion_of_gaia/Illusion of Gaia⧸Time - Awakening The Wind (HQ)"
+      - "chrono_trigger/Black Dream"
+      - "chrono_trigger/Burn! Bobonga!"
+      - "chrono_trigger/People who threw away the will to live"
+      - "chrono_trigger/Remains of Factory"
+      - "chrono_trigger/The Hidden Truth"
+      - "chrono_trigger/Tyran Castle"
+      - "chrono_cross/亡者の島"
+      - "chrono_cross/古龍の砦"
+      - "chrono_cross/幽霊船"
+      - "chrono_cross/蛇骨館"
+      - "elona/Elona OST - The Mine ⧸ Dwarf - 11"
+
+  - events: ["DIM=END"]
+    forceStopMusicOnChanged: true
+    songs:
+      - "final_fantasy/crystal_chronicles/Aiming Towards the New World"
+      - "final_fantasy/crystal_chronicles/Light and Shadow"
+      - "final_fantasy/Final Fantasy - Chaos Shrine Theme"
+      - "final_fantasy/[HD] OST Final Fantasy III DS - 03 - Into the Crystal Cave"
+      - "final_fantasy/Final Fantasy III SNES Music   Figaro Castle"
+      - "octopath_traveler_ii/Dark Night"
+      - "octopath_traveler_ii/Invitation to Darkness"
+      - "octopath_traveler_ii/Lifting the Veil"
+      - "octopath_traveler_ii/Ruins Immemorial"
+      - "fez/Forgotten"
+      - "celeste/[Official] Celeste Original Soundtrack - 14 - Starjump"
+      - "genshin_impact/Where the Dragon Casts Its Will"
+      - "earthbound/The Unforgiving Desert"
+      - "tangledeep/Land of Blooming Mushrooms"
+      - "tangledeep/Lost Relics of the Ancients"
+      - "tangledeep/Mysteries of Time"
+      - "lwa/Little Witch Academia OST - Incubation"
+      - "lwa/Little Witch Academia OST - The Nine Olde Witches"
+      - "lwa/Little Witch Academia OST - Trial"
+      - "illusion_of_gaia/13 Melody of the Wind"
+      - "illusion_of_gaia/Illusion of Gaia OST #4 - Dark Space"
+      - "illusion_of_gaia/Illusion of Gaia： Will's Dream"
+      - "chrono_trigger/Corridors of Time"
+      - "chrono_trigger/Memories of green"
+      - "chrono_trigger/Remains of Factory"
+      - "chrono_trigger/The Brink of Time"
+      - "chrono_cross/影切りの森"
+      - "chrono_cross/死炎山"
+      - "elona/Elona OST - Dungeon3 - 7"
+
+  - events: ["DAY", "BIOME=blossom"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Beyond the Sands Day"
+      - "octopath_traveler_ii/Ku, Land of the Scarlet Sunset Day"
+      - "octopath_traveler_ii/The Crestlands Night"
+      - "genshin_impact/Hakushin's Lullaby"
+
+  - events: ["NIGHT", "BIOME=blossom"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Beyond the Sands Night"
+      - "octopath_traveler_ii/Ku, Land of the Scarlet Sunset Night"
+      - "octopath_traveler_ii/The Crestlands Night"
+      - "genshin_impact/Hakushin's Lullaby"
+
+  - events: ["DAY", "BIOME=IS_VEGETATION_DENSE"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Toto'haha Day"
+      - "final_fantasy/Final Fantasy XII OST - cd3 - 09 - Eruyt Village"
+      - "genshin_impact/Dance With Fireflies"
+      - "tangledeep/Child of the Forest"
+      - "megaman/MegaMan Legends 2 20 - Manda- Ruins Theme"
+      - "megaman/MegaMan Legends 2 35 - Calbania- Shu's House"
+      - "lwa/Little Witch Academia OST - Tension"
+
+  - events: ["NIGHT", "BIOME=IS_VEGETATION_DENSE"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Toto'haha Night"
+      - "final_fantasy/Final Fantasy XII OST - cd3 - 09 - Eruyt Village"
+      - "genshin_impact/A Luminous Path"
+      - "tangledeep/Eternal Verdant Waltz"
+      - "megaman/MegaMan Legends 2 20 - Manda- Ruins Theme"
+      - "lwa/Little Witch Academia OST - Tension"
+      - "lwa/Little Witch Academia OST - The Nine Olde Witches"
+      - "chrono_trigger/Corridors of Time"
+      - "chrono_trigger/Secret of the forest"
+
+  - events: ["DAY", "BIOMETAG=IS_BADLANDS || BIOMETAG=IS_PLATEAU"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Orerush, Dried Up Day"
+      - "octopath_traveler_ii/Orerush, Pioneer Town Day"
+      - "octopath_traveler_ii/Roque Island, Full Steam Ahead Day"
+      - "octopath_traveler_ii/The Wildlands Day"
+
+  - events: ["NIGHT", "BIOMETAG=IS_BADLANDS || BIOMETAG=IS_PLATEAU"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Orerush, Dried Up Night"
+      - "octopath_traveler_ii/Orerush, Pioneer Town Night"
+      - "octopath_traveler_ii/Roque Island, Full Steam Ahead Night"
+      - "octopath_traveler_ii/The Wildlands Night"
+
+  - events: ["BIOMETAG=IS_FOREST"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Forest of Mystery"
+      - "octopath_traveler_ii/Gloomy Grotto"
+      - "octopath_traveler_ii/The Leaflands Day"
+      - "octopath_traveler_ii/The Leaflands Night"
+      - "chrono_trigger/Secret of the forest"
+      - "chrono_cross/トカゲと踊れ"
+
+  - events: ["BIOMETAG=IS_DESERT"]
+    allowFallback: true
+    songs:
+      - "genshin_impact/Fresh Breezes of Dawn"
+      - "earthbound/Bazaar"
+      - "earthbound/Pyramid"
+      - "earthbound/The Unforgiving Desert"
+      - "lwa/Little Witch Academia OST - Tension"
+      - "illusion_of_gaia/Illusion of Gaia⧸Time - Great Pyramid (HQ)"
+      - "elona/Elona OST - Pyramid ⧸ Dungeon 8 - 43"
+
+  - events: ["BIOMETAG=IS_COLD"]
+    allowFallback: true
+    songs:
+      - "celeste/[Official] Celeste Original Soundtrack - 02 - First Steps"
+      - "earthbound/Winters White"
+
+  - events: ["DAY", "BIOMETAG=IS_BEACH"]
+    allowFallback: true
+    songs:
+      - "earthbound/Summers, Eternal Tourist Trap"
+      - "megaman/MegaMan Legends 2 35 - Calbania- Shu's House"
+      - "illusion_of_gaia/Illusion of Gaia OST #3 - South Cape(The Town By The Sea)"
+
+  - events: ["BIOMETAG=IS_MOUNTAIN"]
+    allowFallback: true
+    songs:
+      - "chrono_cross/天晴驚愕大奇術団"
+
+  - events: ["SUNRISE"]
+    songs:
+      - "final_fantasy/The Dalmasca Estersand (From Final Fantasy XII)"
+      - "final_fantasy/crystal_chronicles/Endless Sky"
+      - "octopath_traveler_ii/Carefree Days"
+      - "octopath_traveler_ii/Tropu'hopu, Secret Paradise Day"
+      - "lwa/Little Witch Academia OST - The Usual Luna Nova"
+      - "lwa/Little Witch Academia OST - Ursula"
+      - "chrono_cross/時の草原 ホーム･ワールド"
+
+  - events: ["SUNSET"]
+    songs:
+      - "octopath_traveler_ii/Cropdale, Village at Peace Day"
+      - "octopath_traveler_ii/Cropdale, Village at Peace Night"
+      - "octopath_traveler_ii/Trop'hopu, Secret Paradise Night"
+      - "lwa/Little Witch Academia OST - Melancholic"
+      - "lwa/Little Witch Academia OST - Scenery Of Luna Nova"
+      - "chrono_cross/溺れ谷"
+      - "chrono_cross/神の庭"
+      - "Andy McKee - The Gates of Gnomeria/A Sphere"
+      - "Andy McKee - The Gates of Gnomeria/Nakaqawa San"
+
+  - events: ["DAY", "BIOMETAG=IS_COLD"]
+    allowFallback: true
+    songs:
+      - "octopath_traveler_ii/Snowswept Town Day"
+      - "octopath_traveler_ii/The Brightlands Day"
+      - "octopath_traveler_ii/The Winterlands Day"
+      - "chrono_cross/神の庭"
+      - "chrono_cross/窮地"
+      - "earthbound/Winters White"
+
+  - events: ["NIGHT", "BIOMETAG=IS_COLD"]
+    songs:
+      - "octopath_traveler_ii/Snowswept Town Night"
+      - "octopath_traveler_ii/The Brightlands Night"
+      - "octopath_traveler_ii/The Winterlands Night"
+      - "tangledeep/Child of the Forest"
+      - "earthbound/Snowman"
+      - "lwa/Little Witch Academia OST - Tension"
+      - "lwa/Little Witch Academia OST - The Nine Olde Witches"
+      - "chrono_trigger/The Day the World Revived"
+      - "chrono_cross/死海･滅びの塔"
+
+  - events: ["DAY"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Departure"
+      - "final_fantasy/crystal_chronicles/Leaving the Body Freely"
+      - "final_fantasy/crystal_chronicles/Moving Clouds on the River's Surface"
+      - "final_fantasy/crystal_chronicles/Overlooking the Great Ocean"
+      - "final_fantasy/crystal_chronicles/Amidatty and Eleanor, too"
+      - "octopath_traveler_ii/A Verdant Wind Blows Day"
+      - "octopath_traveler_ii/Hinoeuma Day"
+      - "octopath_traveler_ii/Seaside Town Day"
+      - "octopath_traveler_ii/The Brightlands Day"
+      - "octopath_traveler_ii/The Harborlands Day"
+      - "octopath_traveler_ii/The Leaflands Day"
+      - "octopath_traveler_ii/Village in the Ravine Day"
+      - "earthbound/Sailing to Scaraba"
+      - "earthbound/The Metropolis of Fourside"
+      - "megaman/MegaMan Legends 2 33 - Calbania- Island Theme"
+      - "lozww/Dragon Roost Island - The Legend of Zelda： The Wind Waker OST"
+      - "lwa/Little Witch Academia OST - Magic (Nervous)"
+      - "chrono_cross/クロノマンティーク"
+      - "chrono_cross/テルミナ アナザー"
+      - "chrono_cross/夢の岸辺に アナザー･ワールド"
+      - "chrono_cross/時のみる夢"
+      - "chrono_cross/溺れ谷"
+      - "chrono_cross/航海 ホーム･ワールド"
+
+  - events: ["NIGHT"]
+    songs:
+      - "final_fantasy/crystal_chronicles/Twilight in Dreamland"
+      - "octopath_traveler_ii/A Verdant Wind Blows Night"
+      - "octopath_traveler_ii/Hinoeuma Night"
+      - "octopath_traveler_ii/Seaside Town Night"
+      - "octopath_traveler_ii/The Brightlands Night"
+      - "octopath_traveler_ii/The Harborlands Night"
+      - "octopath_traveler_ii/The Leaflands Night"
+      - "octopath_traveler_ii/Village in the Ravine Night"
+      - "tangledeep/Mysteries of Time"
+      - "earthbound/Sanctuary Guardians"
+      - "earthbound/Save the Miners!"
+      - "lwa/Little Witch Academia OST - Hope"
+      - "lwa/Little Witch Academia OST - Melancholic"
+      - "lwa/Little Witch Academia OST - Memories"
+      - "lwa/Little Witch Academia OST - The Nine Olde Witches"
+      - "lwa/Little Witch Academia OST - Unrest"
+      - "chrono_trigger/At the Bottom of  Night"
+      - "chrono_cross/テルミナ ホーム"
+      - "chrono_cross/夢の岸辺に アナザー･ワールド"
+      - "chrono_cross/失われた欠片"
+      - "chrono_cross/次元の狭間"
+      - "chrono_cross/溺れ谷"
+      - "chrono_cross/航海 アナザー･ワールド"
+      - "elona/Elona OST - Shrine ⧸ Ruins - 29"
+      - "Merry Christmas Mr. Lawrence"
