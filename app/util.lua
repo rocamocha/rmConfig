@@ -86,4 +86,39 @@ function util.get_file_extension(path)
   return path:match("^.+(%.[^%.\\/]+)$") or ""
 end
 
+function util.get_unique_paths(dir)
+    local command = string.format('dir "%s" /s /b /a-d', dir)  -- /a-d = files only
+    local handle = io.popen(command)
+    if not handle then return {} end
+
+    local output = handle:read("*a")
+    handle:close()
+
+    local paths = {}
+    local seen = {}
+
+    for line in output:gmatch("[^\r\n]+") do
+        local dirname = line:match("^(.*)\\[^\\]+$")  -- strip filename
+        if dirname and not seen[dirname] then
+            seen[dirname] = true
+            table.insert(paths, dirname)
+        end
+    end
+
+    return paths
+end
+
+function util.trim_path_after_folder(path, folder_name)
+    -- Normalize backslashes to forward slashes
+    local normalized = path:gsub("\\", "/")
+    
+    -- Escape folder name for pattern matching
+    folder_name = folder_name:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+
+    -- Match up to and including the folder, then capture the rest
+    local result = normalized:match(".-/" .. folder_name .. "/(.+)")
+    
+    return result
+end
+
 return util

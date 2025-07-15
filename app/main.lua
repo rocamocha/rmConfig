@@ -857,7 +857,7 @@ local full_song_filter = iup.list{
 local active_song_manifest = iup.list{
   dropdown = "NO",
   EXPAND = "YES",
-  multiple = "YES",
+  multiple = "NO",
   visiblecolumns = 30,
   visiblelines = 20
 }
@@ -866,31 +866,6 @@ local active_song_filter = iup.list{
   dropdown = "YES",
   EXPAND = "HORIZONTAL"
 }
-
------------------------------------
--- get songs from the event entries
-local function get_active_songs()
-  active_song_manifest[1] = nil
-  local index = tonumber(audio_event_manifest.value)
-  for i, path in ipairs(rmc.entries[index].songs) do
-    active_song_manifest[i] = path
-  end
-end
-
-local function get_songs()
-  full_song_manifest[1] = nil
-  local index = tonumber(audio_event_manifest.value)
-  for i, name in ipairs(assets.names) do
-    full_song_manifest[i] = name
-  end
-end
-
-function audio_event_manifest:action()
-  get_active_songs()
-  if full_song_manifest[1] == nil then
-    get_songs()
-  end
-end
 
 --------------------------------------
 -- convert paths to names & vice versa
@@ -907,6 +882,44 @@ local function convert_song_id(song)
   end
 end
 
+-----------------------------------
+-- get songs from the event entries
+local function get_active_songs()
+  active_song_manifest[1] = nil
+  local index = tonumber(audio_event_manifest.value)
+  for i, path in ipairs(rmc.entries[index].songs) do
+    active_song_manifest[i] = path
+  end
+end
+
+local function get_songs(filter)
+  filter = filter or ""
+  full_song_manifest[1] = nil
+  local index = tonumber(audio_event_manifest.value)
+  local filtered = {}
+  for i, name in ipairs(assets.names) do
+    if (filter ~= "") then
+      if (string.find(convert_song_id(name), filter, 1,  true)) then
+        table.insert(filtered, name)
+      end
+    else
+      full_song_manifest[i] = name
+    end
+  end
+  if #filtered > 0 then
+    for i, name in ipairs(filtered) do
+      full_song_manifest[i] = name
+    end
+  end
+end
+
+function audio_event_manifest:action()
+  get_active_songs()
+  if full_song_manifest[1] == nil then
+    get_songs()
+  end
+end
+
 local button_enable_song = iup.button{
   title = "<< Enable",
   size = "60x",
@@ -914,7 +927,7 @@ local button_enable_song = iup.button{
     local index = tonumber(audio_event_manifest.value)
     for i = 1, #full_song_manifest.value do
       if full_song_manifest.value:sub(i,i) == "+" then
-        table.insert(rmc.entries[index].songs, assets.paths[i])
+        table.insert(rmc.entries[index].songs, convert_song_id(full_song_manifest[i]))
       end
     end
     get_active_songs()
@@ -961,12 +974,29 @@ local button_disable_song = iup.button{
   title = "Disable >>",
   size = "60x",
   action = function()
-    while active_song_manifest:has_selection() do
-      active_song_manifest:remove_first_selection()
-    end
+    local index = tonumber(audio_event_manifest.value)
+    table.remove(rmc.entries[index].songs, active_song_manifest.value)
     get_active_songs()
   end
 }
+
+function full_song_filter:get_paths()
+  local full_paths = util.get_unique_paths(cdir.value .. "\\music\\")
+  table.remove(full_paths, 1)
+  local short_paths = {}
+  for i, full_path in ipairs(full_paths) do
+    short_paths[i] = util.trim_path_after_folder(full_path, "music")
+  end
+  full_song_filter[1] = ""
+  for i, short_path in ipairs(short_paths) do
+    full_song_filter[i + 1] = short_path
+  end
+end
+
+function full_song_filter:action()
+  print(full_song_filter[full_song_filter.value])
+  get_songs(full_song_filter[full_song_filter.value])
+end
 
 
 
@@ -1006,6 +1036,8 @@ stop_button = iup.button{
     mp3prvw.stop()
   end
 }
+
+print(serpent.block(util.get_unique_paths(cdir.value .. "\\music\\")))
 
 
 
@@ -1135,6 +1167,7 @@ local loadButton = iup.button {
     get_project_files()
     get_project_details(yaml_select[yaml_select.value]:gsub("%.ya?ml$", ""):gsub("%.rmc", ""))
     set_project_details()
+    full_song_filter:get_paths()
 
     iup.Message("Result", "Project '" .. filepath .. "' loaded!")
   end
@@ -1409,7 +1442,7 @@ _songs = iup.hbox{
   },
 
   iup.vbox{
-    -- full_song_filter,
+    full_song_filter,
     full_song_manifest,
     preview_button_full
   }
