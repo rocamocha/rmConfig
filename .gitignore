@@ -1,14 +1,6 @@
 # Ignore compiled Lua files
 *.luac
 
-# Ignore LuaRocks rocks and dependencies
-luarocks/
-lua_modules/
-
-# Ignore Windows executables and batch files
-*.exe
-*.bat
-
 # Ignore build folders or exported zips
 dist/
 build/
