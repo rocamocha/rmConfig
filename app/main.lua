@@ -214,15 +214,6 @@ local cdir = iup.text {
   DROPFILESTARGET = "YES"
 }
 
-------------------------
--- drag-and-drop support
-function cdir:dropfiles_cb(filename, num, x, y)
-  -- If they drop a file or folder, we update the text field
-  cdir.value = filename
-  saveLastDirectory(filename)
-  return iup.DEFAULT
-end
-
 ---------------
 -- file browser
 local browseButton = iup.button{
@@ -255,33 +246,6 @@ local asset_names = iup.list {
   visiblecolumns = 40,
   multiple = "YES",
   EXPAND = "YES"
-}
-
-------------------------------------
--- import audio filenames from ./music
-local importButton = iup.button {
-  title = "Import Filenames",
-  action = function()
-    local basePath = cdir.value.."\\music\\"
-    if basePath == "" then
-      iup.Message("Error", "Please select a folder first.")
-      return iup.DEFAULT
-    end
-
-    assets = scanFolderForMP3(basePath)
-
-    if #assets.paths == 0 then
-      iup.Message("Result", "No MP3 files found in the 'music' folder.")
-      import_status.title = "Import failed! Please check your music folder."
-    else
-      for i, name in ipairs(assets.names) do
-        asset_names[i] = name
-      end
-      import_status.title = #assets.paths .. " audio files imported. Check the assets tab for a full list."
-    end
-
-    return iup.DEFAULT
-  end
 }
 
 
@@ -1194,6 +1158,45 @@ local applyButton = iup.button {
     reyml(rmc, cdir.value.."/".. details_filename.value .. ".yaml")
     get_project_files()
     get_project_details(details_filename.value)
+  end
+}
+
+------------------------
+-- drag-and-drop support
+function cdir:dropfiles_cb(filename, num, x, y)
+  -- If they drop a file or folder, we update the text field
+  cdir.value = filename
+  saveLastDirectory(filename)
+  get_project_files()
+  return iup.DEFAULT
+end
+
+------------------------------------
+-- import audio filenames from ./music
+local importButton = iup.button {
+  title = "Import Filenames",
+  action = function()
+    local basePath = cdir.value.."\\music\\"
+    if basePath == "" then
+      iup.Message("Error", "Please select a folder first.")
+      return iup.DEFAULT
+    end
+
+    assets = scanFolderForMP3(basePath)
+
+    if #assets.paths == 0 then
+      iup.Message("Result", "No MP3 files found in the 'music' folder.")
+      import_status.title = "Import failed! Please check your music folder."
+    else
+      for i, name in ipairs(assets.names) do
+        asset_names[i] = name
+      end
+      import_status.title = #assets.paths .. " audio files imported. Check the assets tab for a full list."
+    end
+
+    get_project_files()
+
+    return iup.DEFAULT
   end
 }
 
