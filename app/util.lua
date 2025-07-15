@@ -1,34 +1,5 @@
 local util = {}
 
-function util.combine_tables(t1, t2)
-  local result = {}
-
-  -- Copy dictionary keys and values from t1
-  for k, v in pairs(t1) do
-    result[k] = v
-  end
-
-  -- Append array part from t1 and t2 (if any)
-  local n = 0
-  for i = 1, #t1 do
-    n = n + 1
-    result[n] = t1[i]
-  end
-  for i = 1, #t2 do
-    n = n + 1
-    result[n] = t2[i]
-  end
-
-  -- Copy dictionary keys from t2, overwriting if needed
-  for k, v in pairs(t2) do
-    if type(k) ~= "number" or k > n then
-      result[k] = v
-    end
-  end
-
-  return result
-end
-
 function util.table_to_comma_string(tbl)
     local parts = {}
     for i, v in ipairs(tbl) do
@@ -91,6 +62,28 @@ function util.move_entry_down(tbl, index)
     return index + 1
   end
   return index  -- unchanged if move not possible
+end
+
+function util.load_table_from_file(path)
+  local chunk, err = loadfile(path)
+  if not chunk then
+    error("Failed to load file: " .. err)
+  end
+
+  local ok, result = pcall(chunk)
+  if not ok then
+    error("Error running file: " .. result)
+  end
+
+  if type(result) ~= "table" then
+    error("Expected file to return a table, got " .. type(result))
+  end
+
+  return result
+end
+
+function util.get_file_extension(path)
+  return path:match("^.+(%.[^%.\\/]+)$") or ""
 end
 
 return util

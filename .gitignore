@@ -2,7 +2,7 @@
 *.luac
 
 # Ignore LuaRocks rocks and dependencies
-lib/luarocks/
+luarocks/
 lua_modules/
 
 # Ignore Windows executables and batch files

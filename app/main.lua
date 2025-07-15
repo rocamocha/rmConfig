@@ -1,24 +1,128 @@
 -- create config dir
 os.execute("mkdir config >nul 2>nul")
+os.execute("taskkill /IM ffplay.exe /F >nul 2>&1")
 
 local iup = require("iuplua")
-
+print("IUP VERSION: ", iup._VERSION)
 iup.SetGlobal("UTF8MODE", "YES")
+local gui = {
+  project_details = require("gui/project_details")
+}
 
-local scanFolderForMP3 = require("utility.mp3scan")
-local util = require("utility.util")
-local reyml = require("utility.reyml")
+local scanFolderForMP3 = require("mp3scan")
+local mp3prvw = require("mp3prvw")
+local util = require("util")
+local reyml = require("reyml")
 
 local tinyyaml = require("tinyyaml")
 local serpent = require("serpent")
 
-local assets = {}
+local assets = {} -- song import
+
+-- default project internals
 local rmc = {
+  name = "New Project",
+  author = "Your Name Here",
+  version = "1.0",
+  description = "A songpack for Reactive Music!",
+  credits = "Made in rmConfig by rocamocha",
+  musicSwitchSpeed = "NORMAL",
+  musicDelayLength = "NORMAL",
+  entries = {
+    {
+      events = { "MAIN_MENU" },
+      songs = {}
+    },
+    {
+      events = { "HOME" },
+      songs = {}
+    },
+    {
+      events = { "DAY" },
+      songs = {}
+    },
+    {
+      events = { "NIGHT" },
+      songs = {}
+    },
+  },
   disabled = {} -- disabled events
-} -- internal container
+}
 
+----------------
+-- project details
+local details_name,
+      details_filename,
+      details_author,
+      details_switch_speed,
+      details_delay_length,
+      details_description,
+      details_credits
+    = unpack(gui.project_details)
 
+local project_details = iup.vbox {
+  iup.hbox {
+    iup.vbox {
+      iup.label{title = "Songpack Name:"},
+      details_name
+    },
+    iup.vbox {
+      iup.label{title = "Filename:"},
+      details_filename,
+      iup.label{title = ".yaml / .rmc"}
+    }
+  },
+  iup.hbox {
+    iup.hbox {
+      iup.label{title = "Author:"},
+      details_author,
+      iup.label{title = "Switch Speed:"},
+      details_switch_speed,
+      iup.label{title = "Delay Length:"},
+      details_delay_length,
+    }
+  },
+  iup.frame{
+    iup.hbox{
+      iup.vbox{
+        iup.label{title = "Description:"},
+        details_description,
+      },
+      iup.vbox{
+        iup.label{title = "Credits:"},
+        details_credits
+      }
+    }
+  }
+}
 
+-------------------
+-- populate details
+function get_project_details(filename)
+  details_name.value = rmc.name
+  details_filename.value = filename or "ReactiveMusic" -- manually set because it's not saved in rmc or yaml
+  details_author.value = rmc.author
+  details_description.value = rmc.description
+  details_credits.value = rmc.credits
+
+  for i, setting in ipairs({"INSTANT", "SHORT", "NORMAL", "LONG"}) do
+    if rmc.musicSwitchSpeed == setting then
+      details_switch_speed.value = i
+    end
+    if rmc.musicDelayLength == setting then
+      details_delay_length.value = i
+    end
+  end
+end
+
+function set_project_details()
+  rmc.name = details_name.value
+  rmc.author = details_author.value
+  rmc.description = details_description.value
+  rmc.credits = details_credits.value
+  rmc.musicSwitchSpeed = details_switch_speed[details_switch_speed.value]
+  rmc.musicDelayLength = details_delay_length[details_delay_length.value]
+end
 
 
 
@@ -106,7 +210,7 @@ local cdir = iup.text {
   value = loadLastDirectory(),
   visiblecolumns = 10,
   readonly = "YES",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   DROPFILESTARGET = "YES"
 }
 
@@ -138,7 +242,7 @@ local browseButton = iup.button{
 local import_status = iup.label {
   title = "Welcome to the Reactive Music Config Tool!",
   alignment = "ACENTER",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   font = "Helvetica, Bold 10"
 }
 
@@ -150,7 +254,7 @@ local asset_names = iup.list {
   visiblelines = 20,
   visiblecolumns = 40,
   multiple = "YES",
-  expand = "YES"
+  EXPAND = "YES"
 }
 
 ------------------------------------
@@ -207,7 +311,7 @@ local importButton = iup.button {
 local event_manifest = iup.list {
   "Please load a YAML project.",
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 24,
   visiblelines = 20
 }
@@ -217,7 +321,7 @@ local event_manifest = iup.list {
 local disabled_manifest = iup.list {
   "Disabled events will be listed here.",
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 24,
   visiblelines = 6
 }
@@ -227,17 +331,61 @@ local disabled_manifest = iup.list {
 local event_conditions = iup.list {
   "Individual event conditions will show up here.",
   dropdown = "NO",
-  expand = "HORIZONTAL",
-  visiblecolumns = 40,
-  visiblelines = 10
+  EXPAND = "NO",
+  visiblecolumns = 50,
+  visiblelines = 13
 }
 
 -------------------------
 -- manual condition entry
 local event_conditions_string = iup.text {
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   visiblecolumns = 30
 }
+
+local allowFallback = iup.list{
+  "true",
+  "false",
+  dropdown = "YES",
+}
+
+function allowFallback:action(text)
+  local index = tonumber(event_manifest.value)
+  if index ~= 0 then
+    rmc.entries[index].allowFallback = text
+  end
+end
+
+local forceStartMusicOnValid = iup.list{
+  "true",
+  "false",
+  dropdown = "YES",
+}
+
+function forceStartMusicOnValid:action(text)
+  local index = tonumber(event_manifest.value)
+  rmc.entries[index].forceStartMusicOnValid = text
+end
+
+local forceStopMusicOnChanged = iup.list{
+  "true",
+  "false",
+  dropdown = "YES"
+}
+
+function forceStopMusicOnChanged:action(text)
+  local index = tonumber(event_manifest.value)
+  rmc.entries[index].forceStopMusicOnChanged = text
+end
+
+local forceChance = iup.text{
+  value = ""
+}
+
+function forceChance:action()
+  local index = tonumber(event_manifest.value)
+  rmc.entries[index].forceChance = self.value
+end
 
 --------------------
 -- get active events
@@ -264,6 +412,10 @@ local function update_conditions(index)
   for i, v in ipairs(rmc.entries[index].events) do
     event_conditions[i] = v
   end
+  allowFallback.value = rmc.entries[index].allowFallback and 1 or 0
+  forceStartMusicOnValid.value = rmc.entries[index].forceStartMusicOnValid and 1 or 0
+  forceStopMusicOnChanged.value = rmc.entries[index].forceStopMusicOnChanged and 1 or 0
+  forceChance.value = rmc.entries[index].forceChance and rmc.entries[index].forceChance or ""
 end
 
 --------------------------------------------
@@ -306,7 +458,7 @@ local button_clear_condition = iup.button {
 -- remove selected condition
 local button_remove_condition = iup.button {
   title = "Remove Condition",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   action = function()
     local index = tonumber(event_manifest.value)
     table.remove(rmc.entries[index].events, event_conditions.value)
@@ -320,7 +472,7 @@ local button_remove_condition = iup.button {
 -- move selected condition up
 local button_move_condition_up = iup.button {
   title = "Move Up",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   action = function()
     local index = tonumber(event_manifest.value)
     local reselect = event_conditions[event_conditions.value]
@@ -340,7 +492,7 @@ local button_move_condition_up = iup.button {
 -- move selected condition down
 local button_move_condition_down = iup.button {
   title = "Move Down",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
   action = function()
     local index = tonumber(event_manifest.value)
     local reselect = event_conditions[event_conditions.value]
@@ -488,7 +640,7 @@ local button_delete_event = iup.button{
 -- reactive music built-in conditions list
 local cl_reactive_music = iup.list{
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 20,
   visiblelines = 10
 }
@@ -548,7 +700,7 @@ local button_cl_reactive_music_quick = iup.button{
 -- biome conditions list
 local cl_biomes = iup.list{
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 20,
   visiblelines = 10
 }
@@ -632,7 +784,7 @@ local button_cl_biomes_quick = iup.button{
 -- user defined preset conditions list
 local cl_presets = iup.list{
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 20,
   visiblelines = 10
 }
@@ -711,7 +863,7 @@ local button_cl_presets_quick = iup.button{
 audio_event_manifest = iup.list{
   "Please load a YAML project.",
   dropdown = "NO",
-  expand = "VERTICAL",
+  EXPAND = "VERTICAL",
   visiblecolumns = 24,
   visiblelines = 20
 }
@@ -727,7 +879,7 @@ end
 -- song manifests and filters
 local full_song_manifest = iup.list{
   dropdown = "NO",
-  expand = "YES",
+  EXPAND = "YES",
   multiple = "YES",
   visiblecolumns = 30,
   visiblelines = 20
@@ -735,12 +887,12 @@ local full_song_manifest = iup.list{
 
 local full_song_filter = iup.list{
   dropdown = "YES",
-  expand = "HORIZONTAL",
+  EXPAND = "HORIZONTAL",
 }
 
 local active_song_manifest = iup.list{
   dropdown = "NO",
-  expand = "YES",
+  EXPAND = "YES",
   multiple = "YES",
   visiblecolumns = 30,
   visiblelines = 20
@@ -748,7 +900,7 @@ local active_song_manifest = iup.list{
 
 local active_song_filter = iup.list{
   dropdown = "YES",
-  expand = "HORIZONTAL"
+  EXPAND = "HORIZONTAL"
 }
 
 -----------------------------------
@@ -761,7 +913,7 @@ local function get_active_songs()
   end
 end
 
-local function get_inactive_songs()
+local function get_songs()
   full_song_manifest[1] = nil
   local index = tonumber(audio_event_manifest.value)
   for i, name in ipairs(assets.names) do
@@ -771,7 +923,9 @@ end
 
 function audio_event_manifest:action()
   get_active_songs()
-  get_inactive_songs()
+  if full_song_manifest[1] == nil then
+    get_songs()
+  end
 end
 
 --------------------------------------
@@ -790,8 +944,8 @@ local function convert_song_id(song)
 end
 
 local button_enable_song = iup.button{
-  title = "Enable",
-  size = "40x",
+  title = "<< Enable",
+  size = "60x",
   action = function()
     local index = tonumber(audio_event_manifest.value)
     for i = 1, #full_song_manifest.value do
@@ -800,22 +954,92 @@ local button_enable_song = iup.button{
       end
     end
     get_active_songs()
-    get_inactive_songs()
   end
 }
 
+function active_song_manifest:has_selection()
+  for i = 1, #self.value do
+    if self.value:sub(i,i) == "+" then
+      return true
+    end
+  end
+  return false 
+end
+
+function active_song_manifest:remove_first_selection()
+  local index = tonumber(audio_event_manifest.value)
+  for i = 1, #self.value do
+    if self.value:sub(i,i) == "+" then
+      table.remove(rmc.entries[index].songs, i)
+    end
+  end
+end
+
+function active_song_manifest:get_first_selection()
+  local index = tonumber(audio_event_manifest.value)
+  for i = 1, #self.value do
+    if self.value:sub(i,i) == "+" then
+      return cdir.value .. "\\music\\".. self[i]
+    end
+  end
+end
+
+function full_song_manifest:get_first_selection()
+  local index = tonumber(audio_event_manifest.value)
+  for i = 1, #self.value do
+    if self.value:sub(i,i) == "+" then
+      return cdir.value .. "\\music\\".. convert_song_id(self[i])
+    end
+  end
+end
+
 local button_disable_song = iup.button{
-  title = "Disable",
-  size = "40x",
+  title = "Disable >>",
+  size = "60x",
   action = function()
-    local index = tonumber(audio_event_manifest.value)
-    for i = 1, #active_song_manifest.value do
-      if active_song_manifest.value:sub(i,i) == "+" then
-        table.remove(rmc.entries[index].songs, i)
-      end
+    while active_song_manifest:has_selection() do
+      active_song_manifest:remove_first_selection()
     end
     get_active_songs()
-    get_inactive_songs()
+  end
+}
+
+
+
+
+
+
+
+
+preview_button_full = iup.button{
+  title = "▶ Preview",
+  size = "x16",
+  EXPAND = "HORIZONTAL",
+  action = function()
+    local first_selection = full_song_manifest:get_first_selection()
+    if first_selection then
+      mp3prvw.play(first_selection .. ".mp3")
+    end
+  end
+}
+
+preview_button_active = iup.button{
+  title = "▶ Preview",
+  size = "x16",
+  EXPAND = "HORIZONTAL",
+  action = function()
+    local first_selection = active_song_manifest:get_first_selection()
+    if first_selection then
+      mp3prvw.play(first_selection .. ".mp3")
+    end
+  end
+}
+
+stop_button = iup.button{
+  title = "Stop",
+  size = "60x16",
+  action = function()
+    mp3prvw.stop()
   end
 }
 
@@ -853,6 +1077,20 @@ local function get_yaml_files(dir)
   return files
 end
 
+local function get_rmc_files(dir)
+  local files = {}
+  local p = io.popen('dir "' .. dir .. '" /b /a-d')
+  if not p then return files end
+  for filename in p:lines() do
+    local lower = filename:lower()
+    if lower:match("%.rmc$") then
+      table.insert(files, filename)
+    end
+  end
+  p:close()
+  return files
+end
+
 ---------------------
 -- yaml file selector
 local yaml_select = iup.list {
@@ -861,10 +1099,26 @@ local yaml_select = iup.list {
   size = "200x"
 }
 
--------------------------
--- populate the yaml list
-for i, name in ipairs(get_yaml_files(cdir.value)) do
-  yaml_select[i] = name
+---------------------------------
+-- populate the project file list
+function get_project_files()
+  local reselect = yaml_select[yaml_select.value]
+
+  yaml_select[1] = nil
+  for i, name in ipairs(get_yaml_files(cdir.value)) do
+    yaml_select[i] = name
+  end
+
+  local offset = yaml_select.count
+  for i, name in ipairs(get_rmc_files(cdir.value)) do
+    yaml_select[offset + i] = name
+  end
+
+  for i = 1, yaml_select.count do
+    if reselect == yaml_select[i] then
+      yaml_select.value = i
+    end
+  end
 end
 
 --------------------------------
@@ -879,21 +1133,32 @@ end
 ------------------------------------------
 -- lua serialization, used to save session
 function write_table_to_file(tbl, filename)
-  local file, err = io.open(filename, "w")
+  local file, err = io.open(filename, "wb")
   if not file then
     error("Could not open file for writing: " .. err)
   end
   local serialized = serpent.block(tbl, {comment = false})
-  file:write(serialized)
+  file:write("return " .. serialized)
   file:close()
 end
 
 local loadButton = iup.button {
   title = "Load",
   action = function()
+    ------------------------------
+    -- clear manifest gui elements
     event_manifest[1] = nil
     event_conditions[1] = nil
-    rmc = load_yaml_data(cdir.value .. '/' .. yaml_select[yaml_select.value])
+    
+    local filepath = yaml_select[yaml_select.value]
+    local ext = util.get_file_extension(filepath)
+    
+    if ext == ".yaml" or ext == ".yml" then
+      rmc = load_yaml_data(cdir.value .. '/' .. filepath)
+    else -- we are loading an rmc file
+      rmc = util.load_table_from_file(cdir.value .. '/' .. filepath)
+    end
+
     if not rmc.disabled then
       rmc.disabled = {}
     end
@@ -903,33 +1168,34 @@ local loadButton = iup.button {
 
     get_active_audio_events()
 
-    iup.Message("Result", "Project '" .. yaml_select[yaml_select.value] .. "' loaded!")
+    get_project_files()
+    get_project_details(yaml_select[yaml_select.value]:gsub("%.ya?ml$", ""):gsub("%.rmc", ""))
+    set_project_details()
+
+    iup.Message("Result", "Project '" .. filepath .. "' loaded!")
   end
 }
 
 local saveButton = iup.button {
-  title = "Save",
+  title = "Save RMC",
   action = function()
-    local rmc_fn = (cdir.value..'/'..yaml_select[yaml_select.value]):gsub("%.ya?ml$", ".rmc")
+    set_project_details()
+    local rmc_fn = (cdir.value..'/'.. details_filename.value .. ".rmc")
     write_table_to_file(rmc, rmc_fn)
+    get_project_files()
+    get_project_details(details_filename.value)
   end
 }
 
 local applyButton = iup.button {
-  title = "Apply Changes",
+  title = "Save YAML",
   action = function()
-    reyml(rmc, "test.yaml")
+    set_project_details()
+    reyml(rmc, cdir.value.."/".. details_filename.value .. ".yaml")
+    get_project_files()
+    get_project_details(details_filename.value)
   end
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -965,16 +1231,16 @@ local _project = iup.vbox {
   iup.label {
     title = "rmConfig",
     alignment = "ACENTER",
-    expand = "HORIZONTAL",
+    EXPAND = "HORIZONTAL",
     visiblelines = 2,
-    font = "Helvetica, Bold 14"
+    font = "Courier New, Bold 32"
   },
   iup.hbox {
     cdir,
     browseButton,
     importButton,
-    margin = "100x5",
-    expand = "HORIZONTAL",
+    MARGIN = "100x5",
+    EXPAND = "HORIZONTAL",
     gap = 5
   },
   import_status,
@@ -982,8 +1248,8 @@ local _project = iup.vbox {
   iup.label {
     title = "Project:",
     alignment = "ACENTER",
-    expand = "HORIZONTAL",
-    font = "Times New Roman, Bold 24",
+    EXPAND = "HORIZONTAL",
+    font = "Courier New, Bold 24",
   },
   iup.hbox {
     iup.fill{},
@@ -993,9 +1259,24 @@ local _project = iup.vbox {
     applyButton,
     iup.fill{},
     alignment = "ACENTER",
-    expand = "HORIZONTAL"
+    EXPAND = "HORIZONTAL"
+  },
+  iup.hbox{
+    MARGIN = "10x6",
+    EXPAND = "YES",
+    iup.fill{},
+    iup.frame {
+      title = "Details",
+      alignment = "ATOP",
+      EXPAND = "YES",
+      iup.vbox{
+        project_details,
+        size = "HALFxHALF",
+        EXPAND = "YES",
+      }
+    },
+    iup.fill{}
   }
-  
 }
 
 -------------------
@@ -1017,7 +1298,7 @@ _events = iup.hbox{
           iup.vbox{
             button_enable_event,
             iup.label{
-              expand = "VERTICAL",
+              EXPAND = "VERTICAL",
               title = ""
             },
             button_delete_event
@@ -1037,11 +1318,33 @@ _events = iup.hbox{
       iup.vbox{
         button_move_condition_up,
         button_move_condition_down,
-        button_remove_condition
+        button_remove_condition,
+        iup.frame{
+          title = "Options:",
+          margin = "3x0",
+          iup.vbox{
+            iup.hbox{
+              allowFallback,
+              iup.label{title = "allowFallback"},
+            },
+            iup.hbox{
+              forceStartMusicOnValid,
+              iup.label{title = "forceStartMusicOnValid"},
+            },
+            iup.hbox{
+              forceStopMusicOnChanged,
+              iup.label{title = "forceStopMusicOnChanged"},
+            },
+            iup.hbox{
+              forceChance,
+              iup.label{title = "forceChance"},
+            }
+          }
+        }
       }
     },
     iup.hbox{
-      margin = "0x10",
+      MARGIN = "0x10",
       button_add_event,
       event_conditions_string,
       button_add_condition,
@@ -1049,7 +1352,7 @@ _events = iup.hbox{
     },
     iup.frame{
       title = "Condition Library",
-      expand = "YES",
+      EXPAND = "YES",
       iup.hbox{
         iup.vbox{
           iup.hbox{
@@ -1084,24 +1387,28 @@ _events = iup.hbox{
 _songs = iup.hbox{
   audio_event_manifest,
   iup.vbox{
-    active_song_filter,
-    active_song_manifest
+    -- active_song_filter,
+    active_song_manifest,
+    preview_button_active
   },
   iup.vbox{
     iup.label{
       title = "",
-      expand = "VERTICAL"
+      EXPAND = "VERTICAL"
     },
     button_enable_song,
     button_disable_song,
     iup.label{
       title = "",
-      expand = "VERTICAL"
-    }
+      EXPAND = "VERTICAL"
+    },
+    stop_button
   },
+
   iup.vbox{
-    full_song_filter,
-    full_song_manifest
+    -- full_song_filter,
+    full_song_manifest,
+    preview_button_full
   }
 }
 
@@ -1111,7 +1418,7 @@ _assets = iup.hbox{
   asset_names,
   gap = 10,
   gap = 20,
-  margin = "10x10",
+  MARGIN = "10x10",
 }
 
 local tabs = iup.tabs {
@@ -1119,7 +1426,7 @@ local tabs = iup.tabs {
   _events,
   _songs,
   _assets,
-  expand = "YES"
+  EXPAND = "YES"
 }
 
 iup.SetAttribute(tabs, "TABTITLE0", "Project")
@@ -1141,6 +1448,11 @@ local dlg = iup.dialog{
 }
 
 if loadLastDirectory() ~= "" then importButton.action() end
+
+get_project_files()
+get_active_events()
+get_active_audio_events()
+get_project_details()
 
 dlg:show()
 iup.MainLoop()

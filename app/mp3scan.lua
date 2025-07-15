@@ -20,6 +20,7 @@ function scanFolderForMP3(basePath)
   for line in f:lines() do
     line = line:gsub("\r", ""):gsub("^/", "")  -- Normalize
     if line ~= "" then
+      
       table.insert(paths, line)
     end
   end
