@@ -1,0 +1,19 @@
+return {
+  name = "New Project",
+  author = "Your Name Here",
+  version = "1.0",
+  description = "A songpack for Reactive Music!",
+  credits = "Made in rmConfig by rocamocha",
+  musicSwitchSpeed = "NORMAL",
+  musicDelayLength = "NORMAL",
+  entries = {
+    { events = { "MAIN_MENU" },songs = {} },
+    { events = { "HOME" }, songs = {} },
+    { events = { "UNDERWATER, BIOME=ocean" }, songs = {} },
+    { events = { "UNDERGROUND" }, songs = {} },
+    { events = { "DEEP_UNDERGROUND" }, songs = {} },
+    { events = { "DAY" }, songs = {} },
+    { events = { "NIGHT" }, songs = {} },
+  },
+  disabled = {} -- disabled events
+}

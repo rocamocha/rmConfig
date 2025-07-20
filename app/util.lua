@@ -121,4 +121,14 @@ function util.trim_path_after_folder(path, folder_name)
     return result
 end
 
+function util.compact_array(tbl)
+    local compacted = {}
+    for _, value in ipairs(tbl) do
+        if value ~= nil then
+            table.insert(compacted, value)
+        end
+    end
+    return compacted
+end
+
 return util
