@@ -10,8 +10,7 @@ rmConfig is a tool for creating and modifying configuration files for the Reacti
 
 ⚠️ **IMPORTANT** ⚠️
 ---
-If you have Unicode characters in your music folder's filenames, you must enable the Windows Beta option for enhanced UTF-8 support, found in Control Panel > Region > Administrative > Change system locale...
-
+If you have Unicode characters in your music folder's filenames, for song previewing to work -> you must enable the Windows Beta option for enhanced UTF-8 support, found in Control Panel > Region > Administrative > Change system locale...
 ---
 
 rmConfig was developed because I love music, and the ability to customize when and where different music plays in Minecraft is [CircuitLord](https://github.com/CircuitLord)'s gift to us all!
