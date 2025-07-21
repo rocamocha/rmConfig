@@ -19,6 +19,9 @@ Download Reactive Music
 - ... from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/reactive-music)
 - ... from [Modrinth](https://modrinth.com/mod/reactive-music/versions)
 
+<img width="1186" alt="_project" src="https://github.com/user-attachments/assets/a94b751a-5f94-47b0-b6f3-6eb72959aad5" />
+<img width="1186" alt="_events" src="https://github.com/user-attachments/assets/4ef195aa-3c04-4289-9b20-e00310f88083" />
+
 ### Support Development
 Before considering showing how much you love rmConfig, go see what you can do to show your love for Reactive Music!
 
