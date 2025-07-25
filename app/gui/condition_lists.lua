@@ -6,10 +6,12 @@ local cl_reactive_music = iup.list{
 }
 
 local button_cl_reactive_music_add = iup.button{
+  tip = "Add the selected trigger to the preview.",
   title = "    +    "
 }
 
 local button_cl_reactive_music_quick = iup.button{
+  tip = "Add the selected trigger directly to the event.",
   title = "Quick Add"
 }
 
@@ -21,15 +23,18 @@ local cl_biomes = iup.list{
 }
 
 local cl_options_biomes = iup.list{
+  tip = "Add more biome sources via the config folder.",
   dropdown = "YES",
   visiblecolumns = 20
 }
 
 local button_cl_biomes_add = iup.button{
+  tip = "Add the selected biome to the preview.",
   title = "    +    "
 }
 
 local button_cl_biomes_quick = iup.button{
+  tip = "Add the selected biome directly to the event.",
   title = "Quick Add"
 }
 
@@ -46,10 +51,12 @@ local cl_options_presets = iup.list{
 }
 
 local button_cl_presets_add = iup.button{
+  tip = "Add more preset sources via the config folder.",
   title = "    +    "
 }
 
 local button_cl_presets_quick = iup.button{
+  tip = "Add the selected preset directly to the event.",
   title = "Quick Add"
 }
 

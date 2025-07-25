@@ -1,3 +1,5 @@
+local lfs = require("lfs")
+
 local util = {}
 
 function util.table_to_comma_string(tbl)
@@ -82,8 +84,37 @@ function util.load_table_from_file(path)
   return result
 end
 
+function util.tables_equal(t1, t2, visited)
+  if t1 == t2 then return true end
+  if type(t1) ~= "table" or type(t2) ~= "table" then return false end
+
+  visited = visited or {}
+  if visited[t1] and visited[t1] == t2 then return true end
+  visited[t1] = t2
+
+  for k, v in pairs(t1) do
+    if not util.tables_equal(v, t2[k], visited) then
+      return false
+    end
+  end
+
+  for k in pairs(t2) do
+    if t1[k] == nil then
+      return false
+    end
+  end
+
+  return true
+end
+
 function util.get_file_extension(path)
   return path:match("^.+(%.[^%.\\/]+)$") or ""
+end
+
+function util.file_exists(path)
+  local f = io.open(path, "r")
+  if f then f:close() end
+  return f ~= nil
 end
 
 function util.get_unique_paths(dir)
@@ -129,6 +160,15 @@ function util.compact_array(tbl)
         end
     end
     return compacted
+end
+
+function util.get_modified(filepath)
+  local attr = lfs.attributes(filepath)
+  if attr then
+    return os.date("%Y-%m-%d %H:%M:%S", attr.modification)
+  else
+    return nil, "File not found"
+  end
 end
 
 return util

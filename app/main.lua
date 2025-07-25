@@ -20,6 +20,7 @@ local reyml = require("reyml")
 
 local tinyyaml = require("tinyyaml")
 local serpent = require("serpent")
+local lfs = require("lfs")
 
 local assets = {} -- song import
 
@@ -36,7 +37,9 @@ local cdir,
       button_browse_project,
       import_status,
       yaml_select,
+      label_autosave,
 
+      button_new_project,
       button_load_project,
       button_save_rmc,
       button_save_yaml,
@@ -83,6 +86,16 @@ local function browseForFolder(field)
 end
 
 cdir.value = loadLastDirectory()
+
+function label_autosave:update()
+  local last_modified = util.get_modified(cdir.value.."/autosave.rmc")
+  label_autosave.title = last_modified and "Autosaved at: " .. last_modified or "Autosave not detected."
+end
+
+if util.file_exists(cdir.value.."/autosave.rmc") then
+  rmc = util.load_table_from_file(cdir.value .. "/autosave.rmc")
+  label_autosave:update()
+end
 
 -- Project Tab
 ----------------
@@ -361,6 +374,10 @@ end
 function button_add_event:action()
   if not rmc.entries then
     iup.Message("Error", "Project is not loaded! Please load a YAML from the project tab.")
+    return
+  end
+  if event_conditions_string.value == "" then
+    iup.Message("Error", "Cannot create event. Please construct a condition string first.")
     return
   end
   if event_conditions_string then
@@ -688,8 +705,16 @@ end
 
 function button_disable_song:action()
   local index = tonumber(songs_manifest_event.value)
+  local last = {
+    value = songs_manifest_active.value,
+    topitem = songs_manifest_active.topitem
+  }
+  
   table.remove(rmc.entries[index].songs, songs_manifest_active.value)
   get_active_songs()
+
+  songs_manifest_active.value = last.value
+  songs_manifest_active.topitem = last.topitem
 end
 
 function songs_filter_full:get_paths()
@@ -824,6 +849,18 @@ function write_table_to_file(tbl, filename)
   file:close()
 end
 
+function button_new_project:action()
+  rmc = util.load_table_from_file("config/default.rmc")
+  
+  get_active_events()
+  get_disabled_events()
+  get_active_audio_events()
+  get_project_files()
+  get_project_details()
+  set_project_details()
+  songs_filter_full:get_paths()
+end
+
 function button_load_project:action()
   ------------------------------
   -- clear manifest gui elements
@@ -859,10 +896,11 @@ end
 
 function button_save_rmc:action()
   set_project_details()
-  local rmc_fn = (cdir.value..'/'.. details_filename.value .. ".rmc")
-  write_table_to_file(rmc, rmc_fn)
+  local filename = (cdir.value..'/'.. details_filename.value .. ".rmc")
+  write_table_to_file(rmc, filename)
   get_project_files()
   get_project_details(details_filename.value)
+  iup.Message("Result", "Project saved as \n '"..details_filename.value.."'")
 end
 
 
@@ -871,6 +909,7 @@ function button_save_yaml:action()
   reyml(rmc, cdir.value.."/".. details_filename.value .. ".yaml")
   get_project_files()
   get_project_details(details_filename.value)
+  iup.Message("Result", "Project saved as \n '"..details_filename.value.."'")
 end
 
 ------------------------
@@ -907,6 +946,31 @@ function button_import_filenames:action()
   return iup.DEFAULT
 end
 
+-------------------------
+-- autosave functionality
+local autosave = iup.timer{
+  time = "3000",
+  run = "YES"
+}
+
+function autosave:action_cb()
+  local unsaved_changes = (function()
+    local filepath = cdir.value .. "/autosave.rmc"
+    if not util.file_exists(filepath) then
+      return true
+    elseif not util.tables_equal(rmc, util.load_table_from_file(filepath)) then
+      return true
+    else
+      return false
+    end
+  end)()
+  if unsaved_changes then
+    local filename = (cdir.value.."/autosave" .. ".rmc")
+    write_table_to_file(rmc, filename)
+    label_autosave:update()
+  end
+end
+
 -- ==================================================
 -- GUI layer
 -- ==================================================
@@ -939,14 +1003,16 @@ local _project = iup.vbox {
   },
   iup.hbox {
     iup.fill{},
-    yaml_select,
+    button_new_project,
     button_load_project,
+    yaml_select,
     button_save_rmc,
     button_save_yaml,
     iup.fill{},
     alignment = "ACENTER",
     EXPAND = "HORIZONTAL"
   },
+  label_autosave,
   iup.hbox{
     MARGIN = "10x6",
     EXPAND = "YES",
@@ -1088,7 +1154,7 @@ _songs = iup.hbox{
       title = "",
       EXPAND = "VERTICAL"
     },
-    stop_button
+    button_preview_stop
   },
 
   iup.vbox{
@@ -1111,8 +1177,7 @@ local tabs = iup.tabs {
   _project,
   _events,
   _songs,
-  _assets,
-  EXPAND = "YES"
+  expand = "YES"
 }
 
 do --set tab names

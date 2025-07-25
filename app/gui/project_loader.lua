@@ -34,6 +34,10 @@ local button_load_project = iup.button {
   title = "Load"
 }
 
+local button_new_project = iup.button {
+  title = "New Project"
+}
+
 local button_save_rmc = iup.button {
   title = "Save RMC"
 }
@@ -46,12 +50,20 @@ local button_import_filenames = iup.button {
   title = "Import Filenames"
 }
 
+local label_autosave = iup.label {
+  title = "No autosave detected.",
+  alignment = "ACENTER",
+  expand = "HORIZONTAL"
+}
+
 return {
     cdir,
     button_browse_project,
     import_status,
     yaml_select,
+    label_autosave,
 
+    button_new_project,
     button_load_project,
     button_save_rmc,
     button_save_yaml,

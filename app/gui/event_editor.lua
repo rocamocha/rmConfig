@@ -23,6 +23,7 @@ local event_conditions_list = iup.list {
 }
 
 local event_conditions_string = iup.text {
+  tip = "This is the preview of the string added as a condition to the event.",
   EXPAND = "HORIZONTAL",
   visiblecolumns = 30
 }
