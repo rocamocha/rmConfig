@@ -851,6 +851,36 @@ end
 
 function button_new_project:action()
   rmc = util.load_table_from_file("config/default.rmc")
+
+  local new_mcmeta, msg = (function()
+    local file = cdir.value .. "/pack.mcmeta"
+    
+    if not util.file_exists(file) then
+      local src = io.open("config/pack.mcmeta", "r")
+      
+      --read
+      if not src then
+        return false, "Source pack.mcmeta not found in config/"
+      end
+      local contents = src:read("*a")
+      src:close()
+      
+      -- write
+      local dst = io.open(file, "w")
+      if not dst then
+        return false, "Failed to write to target directory: " .. file
+      end
+      dst:write(contents)
+      dst:close()
+      
+      return true
+    else
+      return false, "File 'pack.mcmeta' found!"
+    end
+    
+  end)()
+
+  print(msg)
   
   get_active_events()
   get_disabled_events()

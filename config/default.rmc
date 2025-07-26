@@ -3,7 +3,7 @@ return {
   author = "Your Name Here",
   version = "1.0",
   description = "A songpack for Reactive Music!",
-  credits = "Made in rmConfig by rocamocha \nhttps://github.com/rocamocha/rmConfig",
+  credits = "Made in rmConfig by rocamocha - https://github.com/rocamocha/rmConfig",
   musicSwitchSpeed = "NORMAL",
   musicDelayLength = "NORMAL",
   entries = {
