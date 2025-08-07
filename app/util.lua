@@ -171,4 +171,9 @@ function util.get_modified(filepath)
   end
 end
 
+function util.open_in_explorer(path)
+  path = path:gsub("/", "\\") -- normalize slashes for Windows
+  os.execute('start "" "' .. path .. '"')
+end
+
 return util
