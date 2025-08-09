@@ -14,6 +14,7 @@ local header = iup.label{
 }
 
 local dir = iup.text{
+	value = "Drag and drop a yaml or rmc!",
 	expand = "horizontal"
 }
 
@@ -55,6 +56,15 @@ local button_import_all = iup.button{
 local toggle_include_songs = iup.toggle{
 	title = "Include songs"
 }
+
+
+
+
+
+
+
+
+
 
 function dir:load()
 	local filepath = dir.value
@@ -113,13 +123,49 @@ function button_import_all:action()
 	secret.event_manifest:pull()
 end
 
+function dir:browse()
+	local dlg = iup.filedlg{
+		dialogtype = "OPEN",
+		title = "Select an import source",
+		filter = "*.yaml;*.rmc",
+		directory = secret.project_directory.value,
+		allownew = "NO"
+	}
+
+	dlg:popup(iup.CENTER, iup.CENTER)
+
+	if dlg.status == "0" then
+		return dlg.value
+	end
+
+	return nil
+end
+
+function button_browse:action()
+	local file = dir:browse()
+	if file and file ~= "" then
+		dir.value = file
+		dir:load()
+		import_manifest:pull()
+	end 
+end
+
 ------------------------
 -- drag-and-drop support
 function dir:dropfiles_cb(filename, num, x, y)
-  dir.value = filename
+	dir.value = filename
 	dir:load()
 	import_manifest:pull()
 end
+
+
+
+
+
+
+
+
+
 
 local window = iup.dialog{
 	size = "250x200",

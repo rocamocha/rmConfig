@@ -4,6 +4,7 @@ local serpent = require("serpent")
 
 local project_details = require("gui/project_details")
 local event_editor = require("gui/event_editor")
+local event_import = require("gui/event_import")
 
 local cdir = iup.text {
   visiblecolumns = 10,
@@ -67,6 +68,15 @@ local label_autosave = iup.label {
   expand = "HORIZONTAL"
 }
 
+
+
+
+
+
+
+
+
+
 function label_autosave:update()
   local last_modified = util.get_modified(cdir.value.."/autosave.rmc")
   label_autosave.title = last_modified and "Autosaved at: " .. last_modified or "Autosave not detected."
@@ -109,6 +119,7 @@ function cdir:browse(field)
 end
 
 cdir.value = cdir:load()
+event_import.set_secret("project_directory", cdir)
 if util.file_exists(cdir.value.."/autosave.rmc") then
   rmc = util.load_table_from_file(cdir.value .. "/autosave.rmc")
   label_autosave:update()
@@ -232,6 +243,7 @@ function button_new_project:action()
 end
 
 function button_load_project:action()
+  event_import.set_secret("project_directory", cdir)
   ------------------------------
   -- clear manifest gui elements
   event_editor.event_manifest[1] = nil
@@ -288,6 +300,7 @@ function cdir:dropfiles_cb(filename, num, x, y)
   cdir.value = filename
   cdir:save(filename)
   yaml_select:import()
+  event_import.set_secret("project_directory", cdir)
   return iup.DEFAULT
 end
 
@@ -324,6 +337,9 @@ local autosave = iup.timer{
 }
 
 function autosave:action_cb()
+  if cdir.value == "" then
+    return
+  end
   local unsaved_changes = (function()
     local filepath = cdir.value .. "/autosave.rmc"
     if not util.file_exists(filepath) then
