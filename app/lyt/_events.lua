@@ -16,6 +16,7 @@ local _events = iup.hbox{
         },
         iup.hbox{
           iup.vbox{
+            event_editor.button_import_event,
             event_editor.button_enable_event,
             iup.label{
               EXPAND = "VERTICAL",

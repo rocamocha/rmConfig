@@ -1,4 +1,5 @@
 local util = require("util")
+local event_import = require("gui/event_import")
 
 local event_manifest = iup.list {
   "Please load a YAML project.",
@@ -104,7 +105,14 @@ local button_delete_event = iup.button{
   size = "50x"
 }
 
+local button_import_event = iup.button{
+  title = "Import",
+  size = "50x"
+}
 
+---------------------------------------------
+-- pass element to the import window
+event_import.set_secret("event_manifest", event_manifest)
 
 
 
@@ -339,7 +347,7 @@ function button_disable_event:action()
   table.remove(rmc.entries, index)
 
   event_manifest:pull()
-  disabled_events:pull()
+  disabled_manifest:pull()
 end
 
 ---------------
@@ -351,7 +359,7 @@ function button_enable_event:action()
   table.remove(rmc.disabled, index)
 
   event_manifest:pull()
-  disabled_events:pull()
+  disabled_manifest:pull()
 end
 
 ---------------
@@ -359,6 +367,12 @@ end
 function button_delete_event:action()
   local index = tonumber(disabled_manifest.value)
   table.remove(rmc.disabled, index)
+end
+
+---------------
+-- import event
+function button_import_event:action()
+  event_import.window:popup(iup.CENTER, iup.CENTER)
 end
 
 
@@ -392,5 +406,6 @@ return {
     button_move_event_down = button_move_event_down,
     button_disable_event = button_disable_event,
     button_enable_event = button_enable_event,
-    button_delete_event = button_delete_event
+    button_delete_event = button_delete_event,
+    button_import_event = button_import_event
 }

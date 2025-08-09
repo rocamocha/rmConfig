@@ -12,8 +12,9 @@ local mp3prvw = require("mp3prvw")
 local util = require("util")
 local reyml = require("reyml")
 local tinyyaml = require("tinyyaml")
-local serpent = require("serpent")
 local lfs = require("lfs")
+
+serpent = require("serpent")
 
 ----------------------------------
 -- global project internals
@@ -37,20 +38,11 @@ local _events = lyt._events
 local _songs = lyt._songs
 local _config = lyt._config
 
--------------
--- assets tab
-_assets = iup.hbox{
-  list_assets_names,
-  gap = 10,
-  gap = 20,
-  MARGIN = "10x10",
-}
-
+-------------------
 local tabs = iup.tabs {
   _project,
   _events,
   _songs,
-  _assets,
   _config,
   expand = "YES"
 }
@@ -59,7 +51,6 @@ for i, tabname in ipairs({
   "Project",
   "Events",
   "Songs",
-  "Assets",
   "Configuration"
 }) do
   iup.SetAttribute(tabs, "TABTITLE"..i-1, tabname)
@@ -69,7 +60,7 @@ local p = io.popen("powershell -command \"(Get-CimInstance Win32_VideoController
 local h = tonumber(p:read("*l"))
 p:close()
 
-local height = math.floor((h or 1080) * (2/3)) -- fallback to 1080 if detection fails
+local height = math.floor((h or 900) * (2/3)) -- fallback to 900 if detection fails
 
 local dlg = iup.dialog{
   tabs,

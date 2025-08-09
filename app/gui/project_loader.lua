@@ -178,15 +178,6 @@ function yaml_select:import()
   end
 end
 
---------------------------------
--- yaml loading & parsing to lua
-local function load_yaml_data(path)
-  local f = assert(io.open(path, "rb"))
-  local content = f:read("*a")
-  f:close()
-  return tinyyaml.parse(content)
-end
-
 ------------------------------------------
 -- lua serialization, used to save session
 function write_table_to_file(tbl, filename)
@@ -250,7 +241,7 @@ function button_load_project:action()
   local ext = util.get_file_extension(filepath)
   
   if ext == ".yaml" or ext == ".yml" then
-    rmc = load_yaml_data(cdir.value .. '/' .. filepath)
+    rmc = util.load_yaml_data(cdir.value .. '/' .. filepath)
   else -- we are loading an rmc file
     rmc = util.load_table_from_file(cdir.value .. '/' .. filepath)
   end
@@ -267,6 +258,7 @@ function button_load_project:action()
   yaml_select:import()
   project_details:pull(yaml_select[yaml_select.value]:gsub("%.ya?ml$", ""):gsub("%.rmc", ""))
   project_details:push()
+  button_import_filenames:action()
 
   -------------------------------------------
   iup.Message("Result", "Project '" .. filepath .. "' loaded!")
@@ -318,7 +310,7 @@ function button_import_filenames:action()
     for i, name in ipairs(rmc.assets.names) do
       list_assets_names[i] = name
     end
-    import_status.title = #rmc.assets.paths .. " audio files imported. Check the assets tab for a full list."
+    import_status.title = #rmc.assets.paths .. " audio files imported."
   end
 
   return iup.DEFAULT

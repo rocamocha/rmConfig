@@ -1,6 +1,16 @@
 local lfs = require("lfs")
+local tinyyaml = require("tinyyaml")
 
 local util = {}
+
+--------------------------------
+-- yaml loading & parsing to lua
+function util.load_yaml_data(path)
+  local f = assert(io.open(path, "rb"))
+  local content = f:read("*a")
+  f:close()
+  return tinyyaml.parse(content)
+end
 
 function util.table_to_comma_string(tbl)
     local parts = {}
@@ -174,6 +184,18 @@ end
 function util.open_in_explorer(path)
   path = path:gsub("/", "\\") -- normalize slashes for Windows
   os.execute('start "" "' .. path .. '"')
+end
+
+-----------------------------------------------------
+-- converts iup multiple list string to index numbers
+function util.multv_to_index(str)
+  local t = {}
+  for i = 1, #str do
+    if str:sub(i,i) == "+" then
+      table.insert(t, i)
+    end
+  end
+  return t
 end
 
 return util
