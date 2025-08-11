@@ -310,7 +310,7 @@ end
 
 ----------------
 -- move event up
-function button_move_event_up:action()
+function button_move_event_up:execute()
   local index = tonumber(event_manifest.value)
   local event = rmc.entries[index]
   util.move_entry_up(rmc.entries, index)
@@ -323,9 +323,33 @@ function button_move_event_up:action()
   end
 end
 
+button_move_event_up.hold_delay = iup.timer{
+  time = 500,
+  run = "NO",
+  action_cb = function()
+    button_move_event_up.hold_timer.run = "YES"
+  end
+}
+
+button_move_event_up.hold_timer = iup.timer{
+  time = 300,
+  run = "NO",
+  action_cb = button_move_event_up.execute
+}
+
+function button_move_event_up:button_cb(button, pressed, x, y, status)
+  if pressed == 1 then
+    button_move_event_up.hold_delay.run = "YES"
+    button_move_event_up:execute()
+  else
+    button_move_event_up.hold_delay.run = "NO"
+    button_move_event_up.hold_timer.run = "NO"
+  end
+end
+
 ------------------
 -- move event down
-function button_move_event_down:action()
+function button_move_event_down:execute()
   local index = tonumber(event_manifest.value)
   local event = rmc.entries[index]
   util.move_entry_down(rmc.entries, index)
@@ -335,6 +359,30 @@ function button_move_event_down:action()
       event_manifest.value = i
       event_conditions_list:get(i)
     end
+  end
+end
+
+button_move_event_down.hold_delay = iup.timer{
+  time = 500,
+  run = "NO",
+  action_cb = function()
+    button_move_event_down.hold_timer.run = "YES"
+  end
+}
+
+button_move_event_down.hold_timer = iup.timer{
+  time = 300,
+  run = "NO",
+  action_cb = button_move_event_down.execute
+}
+
+function button_move_event_down:button_cb(button, pressed, x, y, status)
+  if pressed == 1 then
+    button_move_event_down.hold_delay.run = "YES"
+    button_move_event_down.execute()
+  else
+    button_move_event_down.hold_delay.run = "NO"
+    button_move_event_down.hold_timer.run = "NO"
   end
 end
 
