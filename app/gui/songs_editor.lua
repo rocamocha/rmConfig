@@ -72,6 +72,22 @@ local button_preview_stop = iup.button{
 
 
 
+
+--------------------------------------
+-- convert paths to names & vice versa
+local function convert_song_id(song)
+  for i, path in ipairs(rmc.assets.paths) do
+    if song == path then
+      return rmc.assets.names[i]
+    end
+  end
+  for i, name in ipairs(rmc.assets.names) do
+    if song == name then
+      return rmc.assets.paths[i]
+    end
+  end
+end
+
 local function get_songs(filter)
   filter = filter or ""
   songs_manifest_full[1] = nil
@@ -92,22 +108,6 @@ local function get_songs(filter)
     end
   end
 end
-
---------------------------------------
--- convert paths to names & vice versa
-local function convert_song_id(song)
-  for i, path in ipairs(rmc.assets.paths) do
-    if song == path then
-      return rmc.assets.names[i]
-    end
-  end
-  for i, name in ipairs(rmc.assets.names) do
-    if song == name then
-      return rmc.assets.paths[i]
-    end
-  end
-end
-
 
 
 

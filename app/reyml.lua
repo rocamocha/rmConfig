@@ -42,7 +42,7 @@ local function serialize_yaml_entries(entries)
     table.insert(lines, "  - events: [" .. table.concat(eventList, ", ") .. "]")
 
     -- Serialize boolean flags and optional forceChance
-    for _, key in ipairs({ "allowFallback", "forceStopMusicOnChanged", "forceStartMusicOnValid", "forceChance" }) do
+    for _, key in ipairs({ "allowFallback", "forceStopMusicOnChanged", "forceStartMusicOnValid", "forceChance", "useOverlay" }) do
       local val = entry[key]
       if val ~= nil then
         local value_str = (type(val) == "boolean") and (val and "true" or "false") or tostring(val)

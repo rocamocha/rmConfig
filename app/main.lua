@@ -72,6 +72,7 @@ local dlg = iup.dialog{
 function tabs:tabchange_cb(new_tab, new_index)
   if new_tab == _songs then
     songs_editor.songs_manifest_event:pull()
+    songs_editor.songs_filter_full:get_paths()
   end
 end
 
@@ -82,6 +83,7 @@ end
 project_loader.yaml_select:import()
 event_editor.event_manifest:pull()
 songs_editor.songs_manifest_event:pull()
+songs_editor.songs_filter_full:get_paths()
 
 project_details:pull()
 
