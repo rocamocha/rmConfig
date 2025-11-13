@@ -123,7 +123,9 @@ function song_service.preview_song(song_name, duration)
     return false, "No project directory set"
   end
   
-  local full_path = project_dir .. "\\music\\" .. path
+  -- Construct full path with .mp3 extension
+  -- Note: paths in assets don't include extension (removed by mp3scan)
+  local full_path = project_dir .. "\\music\\" .. path .. ".mp3"
   
   local mp3prvw = require("mp3prvw")
   mp3prvw.play(full_path, duration)
