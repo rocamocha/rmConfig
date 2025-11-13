@@ -60,12 +60,25 @@ local function pull(self, filename)
 end
 
 local function push(self)
-  rmc.name = details_name.value
-  rmc.author = details_author.value
-  rmc.description = details_description.value
-  rmc.credits = details_credits.value
-  rmc.musicSwitchSpeed = details_switch_speed[details_switch_speed.value]
-  rmc.musicDelayLength = details_delay_length[details_delay_length.value]
+  -- Use service to update project details
+  local project_service = require("services/project_service")
+  
+  local details = {
+    name = details_name.value,
+    author = details_author.value,
+    description = details_description.value,
+    credits = details_credits.value,
+    musicSwitchSpeed = details_switch_speed[details_switch_speed.value],
+    musicDelayLength = details_delay_length[details_delay_length.value]
+  }
+  
+  local success, err = project_service.update_details(details)
+  if not success then
+    print("Warning: Failed to update project details:", err)
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current() or rmc
 end
 
 return {

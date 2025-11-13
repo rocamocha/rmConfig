@@ -1,6 +1,10 @@
 local util = require("util")
 local event_import = require("gui/event_import")
 
+-- Service layer
+local event_service = require("services/event_service")
+local project_service = require("services/project_service")
+
 local event_manifest = iup.list {
   "Please load a YAML project.",
   dropdown = "NO",
@@ -195,19 +199,21 @@ end
 --------------------------------------------
 -- add the condition from the string preview
 function button_add_condition:action()
-  print(event_manifest.value)
-  if event_conditions_string.value == "" then
-    return
-  end
-
-  -- why the hell is the *number* output on these things represented as a *string* !?
   if event_manifest:not_selected() then
     return iup.Message("Error", "Event is not selected!")
   end
 
   local index = tonumber(event_manifest.value)
-  local new_condition = event_conditions_string.value
-  table.insert(rmc.entries[index].events, new_condition)
+  local condition = event_conditions_string.value
+  
+  -- Use service to add condition
+  local success, err = event_service.add_condition(index, condition)
+  if not success then
+    return iup.Message("Error", err or "Failed to add condition")
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
 
   event_conditions_list:get(index)
   event_conditions_string.value = ""
@@ -215,6 +221,8 @@ function button_add_condition:action()
   local reselect = event_manifest.value
   event_manifest:pull()
   event_manifest.value = reselect
+  
+  return iup.DEFAULT
 end
 
 
@@ -230,11 +238,24 @@ function button_remove_condition:action()
   if event_manifest:not_selected() then
     return iup.Message("Error", "Event is not selected!")
   end
-  local index = tonumber(event_manifest.value)
-  table.remove(rmc.entries[index].events, event_conditions_list.value)
-  event_conditions_list:get(index)
+  
+  local event_index = tonumber(event_manifest.value)
+  local condition_index = tonumber(event_conditions_list.value)
+  
+  -- Use service to remove condition
+  local success, err = event_service.remove_condition(event_index, condition_index)
+  if not success then
+    return iup.Message("Error", err or "Failed to remove condition")
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_conditions_list:get(event_index)
   event_manifest:pull()
-  event_manifest.value = index
+  event_manifest.value = event_index
+  
+  return iup.DEFAULT
 end
 
 -----------------------------
@@ -243,17 +264,30 @@ function button_move_condition_up:action()
   if event_manifest:not_selected() then
     return iup.Message("Error", "Event is not selected!")
   end
-  local index = tonumber(event_manifest.value)
-  local reselect = event_conditions_list[event_conditions_list.value]
-  util.move_entry_up(rmc.entries[index].events, event_conditions_list.value)
-  event_conditions_list:get(index)
-  event_manifest:pull()
-  event_manifest.value = index
-  for i, c in ipairs(rmc.entries[index].events) do
-    if c == reselect then
-      event_conditions_list.value = i
-    end
+  
+  local event_index = tonumber(event_manifest.value)
+  local condition_index = tonumber(event_conditions_list.value)
+  local reselect = event_conditions_list[condition_index]
+  
+  -- Use service to move condition
+  local success, new_index = event_service.move_condition(event_index, condition_index, "up")
+  if not success then
+    return iup.DEFAULT
   end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_conditions_list:get(event_index)
+  event_manifest:pull()
+  event_manifest.value = event_index
+  
+  -- Reselect the moved condition
+  if new_index then
+    event_conditions_list.value = new_index
+  end
+  
+  return iup.DEFAULT
 end
 
 -------------------------------
@@ -262,17 +296,30 @@ function button_move_condition_down:action()
   if event_manifest:not_selected() then
     return iup.Message("Error", "Event is not selected!")
   end
-  local index = tonumber(event_manifest.value)
-  local reselect = event_conditions_list[event_conditions_list.value]
-  util.move_entry_down(rmc.entries[index].events, event_conditions_list.value)
-  event_conditions_list:get(index)
-  event_manifest.value = index
-  event_manifest:pull()
-  for i, c in ipairs(rmc.entries[index].events) do
-    if c == reselect then
-      event_conditions_list.value = i
-    end
+  
+  local event_index = tonumber(event_manifest.value)
+  local condition_index = tonumber(event_conditions_list.value)
+  local reselect = event_conditions_list[condition_index]
+  
+  -- Use service to move condition
+  local success, new_index = event_service.move_condition(event_index, condition_index, "down")
+  if not success then
+    return iup.DEFAULT
   end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_conditions_list:get(event_index)
+  event_manifest.value = event_index
+  event_manifest:pull()
+  
+  -- Reselect the moved condition
+  if new_index then
+    event_conditions_list.value = new_index
+  end
+  
+  return iup.DEFAULT
 end
 
 -----------------------------------------------
@@ -289,38 +336,62 @@ end
 ----------------
 -- add new event
 function button_add_event:action()
-  if not rmc.entries then
-    iup.Message("Error", "Project is not loaded! Please load a YAML from the project tab.")
-    return
-  end
   if event_conditions_string.value == "" then
     iup.Message("Error", "Cannot create event. Please construct a condition string first.")
-    return
+    return iup.DEFAULT
   end
-  if event_conditions_string then
-    table.insert(rmc.entries, {
-      events = {
-        event_conditions_string.value
-      },
-      songs = {}
-    })
+  
+  -- Get options from UI
+  local options = {
+    allowFallback = (allowFallback.value == 1),
+    forceStartMusicOnValid = (forceStartMusicOnValid.value == 1),
+    forceStopMusicOnChanged = (forceStopMusicOnChanged.value == 1),
+    forceChance = forceChance.value ~= "" and tonumber(forceChance.value) or nil
+  }
+  
+  -- Use service to create event
+  local success, new_index = event_service.create_event(event_conditions_string.value, options)
+  if not success then
+    iup.Message("Error", new_index or "Failed to create event")
+    return iup.DEFAULT
   end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_conditions_string.value = ""
   event_manifest:pull()
+  event_manifest.value = new_index
+  event_conditions_list:get(new_index)
+  
+  return iup.DEFAULT
 end
 
 ----------------
 -- move event up
 function button_move_event_up:execute()
-  local index = tonumber(event_manifest.value)
-  local event = rmc.entries[index]
-  util.move_entry_up(rmc.entries, index)
-  event_manifest:pull()
-  for i, e in ipairs(rmc.entries) do
-    if event == e then
-      event_manifest.value = i
-      event_conditions_list:get(i)
-    end
+  if event_manifest:not_selected() then
+    return iup.DEFAULT
   end
+  
+  local index = tonumber(event_manifest.value)
+  
+  -- Use service to move event
+  local success, new_index = event_service.move_event(index, "up")
+  if not success then
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_manifest:pull()
+  if new_index then
+    event_manifest.value = new_index
+    event_conditions_list:get(new_index)
+  end
+  
+  return iup.DEFAULT
 end
 
 button_move_event_up.hold_delay = iup.timer{
@@ -350,16 +421,28 @@ end
 ------------------
 -- move event down
 function button_move_event_down:execute()
-  local index = tonumber(event_manifest.value)
-  local event = rmc.entries[index]
-  util.move_entry_down(rmc.entries, index)
-  event_manifest:pull()
-  for i, e in ipairs(rmc.entries) do
-    if event == e then
-      event_manifest.value = i
-      event_conditions_list:get(i)
-    end
+  if event_manifest:not_selected() then
+    return iup.DEFAULT
   end
+  
+  local index = tonumber(event_manifest.value)
+  
+  -- Use service to move event
+  local success, new_index = event_service.move_event(index, "down")
+  if not success then
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  event_manifest:pull()
+  if new_index then
+    event_manifest.value = new_index
+    event_conditions_list:get(new_index)
+  end
+  
+  return iup.DEFAULT
 end
 
 button_move_event_down.hold_delay = iup.timer{
@@ -389,32 +472,75 @@ end
 ----------------
 -- disable event
 function button_disable_event:action()
+  if event_manifest:not_selected() then
+    return iup.Message("Error", "Please select an event to disable")
+  end
+  
   local index = tonumber(event_manifest.value)
-  local event = rmc.entries[index]
-  table.insert(rmc.disabled, event)
-  table.remove(rmc.entries, index)
+  
+  -- Use service to disable event
+  local success, err = event_service.disable_event(index)
+  if not success then
+    iup.Message("Error", err or "Failed to disable event")
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
 
   event_manifest:pull()
   disabled_manifest:pull()
+  
+  return iup.DEFAULT
 end
 
 ---------------
 -- enable event
-function button_enable_event:action()  
+function button_enable_event:action()
+  if disabled_manifest:not_selected() then
+    return iup.Message("Error", "Please select a disabled event to enable")
+  end
+  
   local index = tonumber(disabled_manifest.value)
-  local event = rmc.disabled[index]
-  table.insert(rmc.entries, event)
-  table.remove(rmc.disabled, index)
+  
+  -- Use service to enable event
+  local success, new_index = event_service.enable_event(index)
+  if not success then
+    iup.Message("Error", new_index or "Failed to enable event")
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
 
   event_manifest:pull()
   disabled_manifest:pull()
+  
+  return iup.DEFAULT
 end
 
 ---------------
 -- delete event
 function button_delete_event:action()
+  if disabled_manifest:not_selected() then
+    return iup.Message("Error", "Please select a disabled event to delete")
+  end
+  
   local index = tonumber(disabled_manifest.value)
-  table.remove(rmc.disabled, index)
+  
+  -- Use service to delete event
+  local success, err = event_service.delete_event(index, true)
+  if not success then
+    iup.Message("Error", err or "Failed to delete event")
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
+  disabled_manifest:pull()
+  
+  return iup.DEFAULT
 end
 
 ---------------

@@ -2,6 +2,10 @@ local util = require("util")
 local mp3prvw = require("mp3prvw")
 local project_loader = require("gui/project_loader")
 
+-- Service layer
+local song_service = require("services/song_service")
+local project_service = require("services/project_service")
+
 local songs_manifest_event = iup.list{
   "Please load a YAML project.",
   dropdown = "NO",
@@ -146,12 +150,24 @@ function button_enable_song:action()
   if index == 0 then
     return iup.Message("Error", "Event is not selected!")
   end
+  
+  -- Assign selected songs using service
   for i = 1, #songs_manifest_full.value do
     if songs_manifest_full.value:sub(i,i) == "+" then
-      table.insert(rmc.entries[index].songs, convert_song_id(songs_manifest_full[i]))
+      local song_name = songs_manifest_full[i]
+      local success, err = song_service.assign_song(index, song_name)
+      if not success then
+        print("Warning: Failed to assign song:", err)
+      end
     end
   end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
   songs_manifest_active:pull()
+  
+  return iup.DEFAULT
 end
 
 function songs_manifest_active:has_selection()
@@ -195,16 +211,33 @@ function button_disable_song:action()
   if index == 0 then
     return iup.Message("Error", "Event is not selected!")
   end
+  
+  if songs_manifest_active.value == "0" then
+    return iup.Message("Error", "Please select a song to disable!")
+  end
+  
   local last = {
     value = songs_manifest_active.value,
     topitem = songs_manifest_active.topitem
   }
   
-  table.remove(rmc.entries[index].songs, songs_manifest_active.value)
+  local song_index = tonumber(songs_manifest_active.value)
+  
+  -- Use service to unassign song
+  local success, err = song_service.unassign_song(index, song_index)
+  if not success then
+    return iup.Message("Error", err or "Failed to unassign song")
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
   songs_manifest_active:pull()
 
   songs_manifest_active.value = last.value
   songs_manifest_active.topitem = last.topitem
+  
+  return iup.DEFAULT
 end
 
 function songs_filter_full:get_paths()
@@ -228,24 +261,67 @@ end
 ---------------
 -- song preview
 function button_preview_full:action()
-  local first_selection = songs_manifest_full:get_first_selection()
-  if first_selection then
-    mp3prvw.play(first_selection .. ".mp3")
-  else
+  -- Find first selected song
+  local song_name = nil
+  for i = 1, #songs_manifest_full.value do
+    if songs_manifest_full.value:sub(i,i) == "+" then
+      song_name = songs_manifest_full[i]
+      break
+    end
+  end
+  
+  if not song_name then
     return iup.Message("Error", "Please select a song to preview!")
   end
+  
+  -- Use service to preview song
+  local success, err = song_service.preview_song(song_name, 30)
+  if not success then
+    iup.Message("Error", err or "Failed to preview song")
+  end
+  
+  return iup.DEFAULT
 end
 
 function button_preview_active:action()
   if songs_manifest_active.value == "0" then
     return iup.Message("Error", "Please select a song to preview!")
   end
-  mp3prvw.play(project_loader.cdir.value.."\\music\\"..songs_manifest_active[songs_manifest_active.value] .. ".mp3")
+  
+  local index = tonumber(songs_manifest_event.value)
+  local song_index = tonumber(songs_manifest_active.value)
+  
+  if not rmc.entries[index] or not rmc.entries[index].songs[song_index] then
+    return iup.Message("Error", "Invalid song selection!")
+  end
+  
+  -- Get the song path and convert to name
+  local song_path = rmc.entries[index].songs[song_index]
+  local song_name = nil
+  for i, path in ipairs(rmc.assets.paths) do
+    if path == song_path then
+      song_name = rmc.assets.names[i]
+      break
+    end
+  end
+  
+  if not song_name then
+    return iup.Message("Error", "Song not found in assets!")
+  end
+  
+  -- Use service to preview song
+  local success, err = song_service.preview_song(song_name, 30)
+  if not success then
+    iup.Message("Error", err or "Failed to preview song")
+  end
+  
+  return iup.DEFAULT
 end
 
 
 function button_preview_stop:action()
-  mp3prvw.stop()
+  song_service.stop_preview()
+  return iup.DEFAULT
 end
 
 

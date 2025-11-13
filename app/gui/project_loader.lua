@@ -6,6 +6,9 @@ local project_details = require("gui/project_details")
 local event_editor = require("gui/event_editor")
 local event_import = require("gui/event_import")
 
+-- Service layer
+local project_service = require("services/project_service")
+
 local cdir = iup.text {
   visiblecolumns = 10,
   readonly = "YES",
@@ -78,7 +81,7 @@ local label_autosave = iup.label {
 
 
 function label_autosave:update()
-  local last_modified = util.get_modified(cdir.value.."/autosave.rmc")
+  local last_modified = project_service.get_autosave_time()
   label_autosave.title = last_modified and "Autosaved at: " .. last_modified or "Autosave not detected."
 end
 
@@ -120,9 +123,14 @@ end
 
 cdir.value = cdir:load()
 event_import.set_secret("project_directory", cdir)
-if util.file_exists(cdir.value.."/autosave.rmc") then
-  rmc = util.load_table_from_file(cdir.value .. "/autosave.rmc")
-  label_autosave:update()
+
+-- Try to load autosave using service
+if cdir.value ~= "" then
+  project_service.set_directory(cdir.value)
+  if project_service.load_autosave(cdir.value) then
+    rmc = project_service.get_current()
+    label_autosave:update()
+  end
 end
 
 -----------------------
@@ -132,6 +140,7 @@ function button_browse_project:action()
   if dir and dir ~= "" then
     cdir.value = dir
     cdir:save(dir)
+    project_service.set_directory(dir)
   end
   return iup.DEFAULT
 end
@@ -189,78 +198,60 @@ function yaml_select:import()
   end
 end
 
-------------------------------------------
--- lua serialization, used to save session
-function write_table_to_file(tbl, filename)
-  local file, err = io.open(filename, "wb")
-  if not file then
-    error("Could not open file for writing: " .. err)
-  end
-  local serialized = serpent.block(tbl, {comment = false})
-  file:write("return " .. serialized)
-  file:close()
-end
+-- Note: write_table_to_file is now handled by repository layer, 
+-- but keeping for backward compatibility during migration
 
 function button_new_project:action()
-  rmc = util.load_table_from_file("config/default.rmc")
-
-  local new_mcmeta, msg = (function()
-    local file = cdir.value .. "/pack.mcmeta"
-    
-    if not util.file_exists(file) then
-      local src = io.open("config/pack.mcmeta", "r")
-      
-      --read
-      if not src then
-        return false, "Source pack.mcmeta not found in config/"
-      end
-      local contents = src:read("*a")
-      src:close()
-      
-      -- write
-      local dst = io.open(file, "w")
-      if not dst then
-        return false, "Failed to write to target directory: " .. file
-      end
-      dst:write(contents)
-      dst:close()
-      
-      return true
-    else
-      return false, "File 'pack.mcmeta' found!"
-    end
-    
-  end)()
-
-  print(msg)
+  if cdir.value == "" then
+    iup.Message("Error", "Please select a project directory first")
+    return iup.DEFAULT
+  end
   
+  -- Use service to create new project
+  local project, err = project_service.create_new(cdir.value)
+  if not project then
+    iup.Message("Error", err or "Failed to create project")
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project
+  
+  -- Update UI
   event_editor.event_manifest:pull()
   event_editor.disabled_manifest:pull()
   
   yaml_select:import()
   project_details:pull()
   project_details:push()
+  
+  return iup.DEFAULT
 end
 
 function button_load_project:action()
   event_import.set_secret("project_directory", cdir)
-  ------------------------------
+  
+  if cdir.value == "" then
+    iup.Message("Error", "Please select a project directory first")
+    return iup.DEFAULT
+  end
+  
   -- clear manifest gui elements
   event_editor.event_manifest[1] = nil
   event_editor.event_conditions_list[1] = nil
   
   local filepath = yaml_select[yaml_select.value]
-  local ext = util.get_file_extension(filepath)
+  local full_path = cdir.value .. '/' .. filepath
   
-  if ext == ".yaml" or ext == ".yml" then
-    rmc = util.load_yaml_data(cdir.value .. '/' .. filepath)
-  else -- we are loading an rmc file
-    rmc = util.load_table_from_file(cdir.value .. '/' .. filepath)
+  -- Use service to load project
+  local project, err = project_service.load(full_path, cdir.value)
+  if not project then
+    iup.Message("Error", "Failed to load project: " .. (err or "unknown error"))
+    return iup.DEFAULT
   end
 
-  if not rmc.disabled then
-    rmc.disabled = {}
-  end
+  -- Update global state (temporary during migration)
+  rmc = project
 
   --------------------
   -- populate gui data
@@ -274,24 +265,55 @@ function button_load_project:action()
 
   -------------------------------------------
   iup.Message("Result", "Project '" .. filepath .. "' loaded!")
+  
+  return iup.DEFAULT
 end
 
 function button_save_rmc:action()
+  -- Update project details first
   project_details:push()
-  local filename = (cdir.value..'/'.. project_details.details_filename.value .. ".rmc")
-  write_table_to_file(rmc, filename)
+  
+  local filename = cdir.value .. '/' .. project_details.details_filename.value .. ".rmc"
+  
+  -- Use service to save
+  local success, err = project_service.save(filename, "rmc")
+  if not success then
+    iup.Message("Error", "Failed to save: " .. (err or "unknown error"))
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
   yaml_select:import()
   project_details:pull(project_details.details_filename.value)
   iup.Message("Result", "Project saved as \n '"..project_details.details_filename.value.."'")
+  
+  return iup.DEFAULT
 end
 
 
 function button_save_yaml:action()
+  -- Update project details first
   project_details:push()
-  reyml(rmc, cdir.value.."/".. project_details.details_filename.value .. ".yaml")
+  
+  local filename = cdir.value .. '/' .. project_details.details_filename.value .. ".yaml"
+  
+  -- Use service to save
+  local success, err = project_service.save(filename, "yaml")
+  if not success then
+    iup.Message("Error", "Failed to save: " .. (err or "unknown error"))
+    return iup.DEFAULT
+  end
+  
+  -- Update global state (temporary during migration)
+  rmc = project_service.get_current()
+  
   yaml_select:import()
   project_details:pull(project_details.details_filename.value)
   iup.Message("Result", "Project saved as \n '"..project_details.details_filename.value.."'")
+  
+  return iup.DEFAULT
 end
 
 ------------------------
@@ -299,6 +321,7 @@ end
 function cdir:dropfiles_cb(filename, num, x, y)
   cdir.value = filename
   cdir:save(filename)
+  project_service.set_directory(filename)
   yaml_select:import()
   event_import.set_secret("project_directory", cdir)
   return iup.DEFAULT
@@ -307,23 +330,28 @@ end
 ------------------------------------
 -- import audio filenames from ./music
 function button_import_filenames:action()
-  local basePath = cdir.value.."\\music\\"
-  if basePath == "" then
+  if cdir.value == "" then
     iup.Message("Error", "Please select a folder first.")
     return iup.DEFAULT
   end
-
-  rmc.assets = scanFolderForMP3(basePath)
-
-  if #rmc.assets.paths == 0 then
+  
+  local basePath = cdir.value.."\\music\\"
+  
+  -- Use service to import assets
+  local success, count_or_err = project_service.import_assets(basePath)
+  
+  if not success then
     iup.Message("Result", "No MP3 files found in the 'music' folder.")
     import_status.title = "Import failed! Please check your music folder."
   else
+    -- Update global state (temporary during migration)
+    rmc = project_service.get_current()
+    
     list_assets_names[1] = nil
     for i, name in ipairs(rmc.assets.names) do
       list_assets_names[i] = name
     end
-    import_status.title = #rmc.assets.paths .. " audio files imported."
+    import_status.title = count_or_err .. " audio files imported."
   end
 
   return iup.DEFAULT
@@ -340,19 +368,10 @@ function autosave:action_cb()
   if cdir.value == "" then
     return
   end
-  local unsaved_changes = (function()
-    local filepath = cdir.value .. "/autosave.rmc"
-    if not util.file_exists(filepath) then
-      return true
-    elseif not util.tables_equal(rmc, util.load_table_from_file(filepath)) then
-      return true
-    else
-      return false
-    end
-  end)()
-  if unsaved_changes then
-    local filename = (cdir.value.."/autosave" .. ".rmc")
-    write_table_to_file(rmc, filename)
+  
+  -- Use service to autosave
+  local success, err = project_service.autosave()
+  if success then
     label_autosave:update()
   end
 end
