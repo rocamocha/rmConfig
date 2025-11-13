@@ -1,5 +1,10 @@
 local util = require("util")
 
+-- Service layer
+local rmc_repository = require("repositories/rmc_repository")
+local event_model = require("models/event")
+local project_service = require("services/project_service")
+
 local secret = {}
 local loaded = {} -- container
 
@@ -68,13 +73,15 @@ local toggle_include_songs = iup.toggle{
 
 function dir:load()
 	local filepath = dir.value
-	local ext = util.get_file_extension(filepath)
 	
-	if ext == ".yaml" or ext == ".yml" then
-		loaded = util.load_yaml_data(filepath)
-	else -- we are loading an rmc file
-		loaded = util.load_table_from_file(filepath)
+	-- Use repository to load project
+	local data, err = rmc_repository.load(filepath)
+	if not data then
+		iup.Message("Error", "Failed to load file: " .. (err or "unknown error"))
+		return
 	end
+	
+	loaded = data
 
 	details_events_count.title = #loaded.entries
 	details_conditions_count.title = (function()
@@ -102,25 +109,69 @@ end
 
 function button_import_selected:action()
 	local selected = util.multv_to_index(import_manifest.value)
+	local project = project_service.get_current()
+	
+	if not project then
+		iup.Message("Error", "No project loaded. Please load a project first.")
+		return iup.DEFAULT
+	end
+	
 	for _, index in ipairs(selected) do
 		local import = loaded.entries[index]
+		
+		-- Clone the event to avoid modifying the source
+		local event_to_import = event_model.clone(import)
+		
 		if toggle_include_songs.value == "OFF" then
-			import.songs = {}
+			event_to_import.songs = {}
 		end
-		table.insert(rmc.entries, import)
+		
+		-- Validate before importing
+		local valid, errors = event_model.validate(event_to_import)
+		if valid then
+			table.insert(project.entries, event_to_import)
+		else
+			print("Warning: Skipping invalid event:", table.concat(errors, ", "))
+		end
 	end
+	
+	-- Update global state (temporary during migration)
+	rmc = project
+	
 	secret.event_manifest:pull()
+	return iup.DEFAULT
 end
 
 function button_import_all:action()
-	for _, event in ipairs(loaded.entries) do
-		local import = event
-		if toggle_include_songs.value == "OFF" then
-			import.songs = {}
-		end
-		table.insert(rmc.entries, import)
+	local project = project_service.get_current()
+	
+	if not project then
+		iup.Message("Error", "No project loaded. Please load a project first.")
+		return iup.DEFAULT
 	end
+	
+	for _, event in ipairs(loaded.entries) do
+		-- Clone the event to avoid modifying the source
+		local event_to_import = event_model.clone(event)
+		
+		if toggle_include_songs.value == "OFF" then
+			event_to_import.songs = {}
+		end
+		
+		-- Validate before importing
+		local valid, errors = event_model.validate(event_to_import)
+		if valid then
+			table.insert(project.entries, event_to_import)
+		else
+			print("Warning: Skipping invalid event:", table.concat(errors, ", "))
+		end
+	end
+	
+	-- Update global state (temporary during migration)
+	rmc = project
+	
 	secret.event_manifest:pull()
+	return iup.DEFAULT
 end
 
 function dir:browse()
